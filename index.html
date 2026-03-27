@@ -6,316 +6,348 @@
   <title>麦艾斯 · 现金流预测趋势模型</title>
   <style>
     :root {
-      --bg1:#eef4ff;
-      --bg2:#f7fbff;
-      --panel:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --brand:#2563eb;
-      --brand2:#0ea5e9;
-      --success:#16a34a;
-      --warn:#d97706;
-      --danger:#dc2626;
-      --shadow:0 10px 30px rgba(15,23,42,.08);
-      --radius:22px;
+      --bg: #f4f8ff;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --cyan: #0891b2;
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+      --radius: 26px;
     }
     * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:var(--text); background:linear-gradient(180deg,var(--bg1),var(--bg2)); }
-    body { min-height:100vh; }
-    .wrap { max-width:1400px; margin:0 auto; padding:24px; }
-    .top-actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:flex-end; margin-bottom:18px; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
+    }
+    .page { max-width: 1480px; margin: 0 auto; padding: 20px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:flex-end; margin-bottom:16px; }
     .btn {
-      border:1px solid var(--line);
+      border: 1px solid var(--line);
       background:#fff;
       color:var(--text);
       border-radius:16px;
-      padding:12px 16px;
+      padding: 11px 16px;
       font-size:14px;
       font-weight:600;
       cursor:pointer;
-      box-shadow:var(--shadow);
+      box-shadow: var(--shadow);
     }
-    .btn.primary {
-      background:linear-gradient(135deg,var(--brand),var(--brand2));
-      color:#fff;
-      border:none;
-    }
+    .btn.primary { background: linear-gradient(135deg, var(--blue), var(--cyan)); color:#fff; border:none; }
     .hero {
-      background:linear-gradient(135deg,#0f172a 0%, #1d4ed8 55%, #0891b2 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0891b2 100%);
       color:#fff;
-      border-radius:30px;
-      padding:28px;
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow);
     }
-    .hero .eyebrow { font-size:14px; opacity:.85; }
-    .hero h1 { margin:10px 0 10px; font-size:36px; line-height:1.15; }
-    .hero p { margin:0; max-width:900px; color:rgba(255,255,255,.86); line-height:1.8; }
-    .hero .safe-line {
-      margin-top:18px;
-      display:inline-block;
-      padding:10px 14px;
-      border-radius:16px;
-      background:rgba(255,255,255,.12);
+    .hero-top { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; }
+    .hero small { color:#dbeafe; }
+    .hero h1 { margin:10px 0 8px; font-size:38px; line-height:1.15; }
+    .hero p { margin:0; max-width:900px; color: rgba(255,255,255,.86); line-height:1.8; font-size:14px; }
+    .safe-badge {
+      border-radius:18px;
       border:1px solid rgba(255,255,255,.12);
-      font-weight:600;
-    }
-    .grid-4 {
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
-      margin:18px 0;
-    }
-    .card {
-      background:var(--panel);
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      padding:22px;
-      position:relative;
-    }
-    .card .label {
-      color:var(--muted);
+      background: rgba(255,255,255,.10);
+      padding: 12px 16px;
       font-size:14px;
-      margin-bottom:10px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
     }
-    .card .value {
-      font-size:26px;
-      font-weight:800;
-      line-height:1.2;
-      margin-bottom:8px;
+    .grid-4, .grid-2, .grid-3 { display:grid; gap:16px; margin-top:18px; }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
     }
-    .card .sub {
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.6;
-    }
+    .card h2, .card h3 { margin:0; }
+    .title-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
     .help {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:18px;
-      height:18px;
-      border-radius:999px;
-      background:#e2e8f0;
-      color:#475569;
-      font-size:12px;
-      cursor:help;
-      position:relative;
-      flex:0 0 auto;
+      display:inline-flex; align-items:center; justify-content:center;
+      width:18px; height:18px; border-radius:999px; background:#e2e8f0;
+      color:#475569; font-size:12px; position:relative; cursor:help;
     }
     .help:hover::after {
-      content:attr(data-tip);
-      position:absolute;
-      left:0;
-      top:24px;
-      width:300px;
-      padding:12px 14px;
-      border-radius:14px;
-      background:#0f172a;
-      color:#fff;
-      font-size:12px;
-      line-height:1.7;
-      z-index:20;
-      box-shadow:0 16px 40px rgba(2,6,23,.28);
-      white-space:normal;
+      content: attr(data-tip);
+      position:absolute; top:24px; left:0; width:300px; padding:12px 14px;
+      background:#0f172a; color:#fff; border-radius:14px; font-size:12px; line-height:1.7;
+      box-shadow: 0 20px 40px rgba(2,6,23,.25); z-index:100; white-space:normal;
     }
-    .section-title {
-      font-size:18px;
-      font-weight:800;
-      margin:0 0 16px;
-      display:flex;
-      align-items:center;
-      gap:8px;
+    .metric-label { color:var(--muted); font-size:14px; margin-bottom:10px; }
+    .metric-value { font-size:32px; font-weight:800; line-height:1.15; margin-bottom:8px; }
+    .metric-sub { color:var(--muted); font-size:13px; line-height:1.7; }
+    .iconbox {
+      width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+      font-size:22px;
     }
-    .grid-2 {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-      margin-bottom:18px;
+    .metric-head { display:flex; justify-content:space-between; gap:14px; }
+    .tone-blue { background: linear-gradient(135deg, #eff6ff, #e0f2fe); }
+    .tone-green { background: linear-gradient(135deg, #ecfdf5, #dcfce7); }
+    .tone-amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+    .tone-purple { background: linear-gradient(135deg, #f5f3ff, #fae8ff); }
+    .mini-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-bottom:14px; }
+    .mini {
+      background:#f8fafc; border-radius:18px; padding:14px;
     }
-    .mini-list {
-      display:grid;
-      gap:10px;
+    .mini .lab { font-size:13px; color:var(--muted); }
+    .mini .val { margin-top:4px; font-size:20px; font-weight:700; }
+    .chart-box { height:340px; }
+    .h-420 { height:420px; }
+    .svg-chart { width:100%; height:100%; display:block; }
+    .legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .legend span {
+      font-size:12px; color:var(--muted); border-radius:999px; background:#f1f5f9; padding:6px 10px;
     }
-    .mini-item {
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px 16px;
-      background:#fff;
-    }
-    .mini-item .t1 { font-size:13px; color:var(--muted); }
-    .mini-item .t2 { margin-top:6px; font-weight:800; font-size:22px; }
-    .mini-item .t3 { margin-top:4px; color:var(--muted); font-size:13px; }
-    .info-grid {
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
-      margin-bottom:18px;
-    }
-    .badge {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:6px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      white-space:nowrap;
-    }
-    .badge.ok { background:#dcfce7; color:#166534; }
-    .badge.warn { background:#fef3c7; color:#92400e; }
-    .badge.danger { background:#fee2e2; color:#991b1b; }
-
-    .panel { background:#fff; border-radius:26px; box-shadow:var(--shadow); padding:20px; margin-bottom:18px; }
-    .toolbar-row { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; }
-    .toolbar-row .desc { color:var(--muted); font-size:13px; line-height:1.7; }
-    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:18px; }
-    table { width:100%; min-width:1200px; border-collapse:collapse; background:#fff; }
-    th, td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle; text-align:left; }
-    th { background:#f8fafc; color:#475569; font-size:13px; position:sticky; top:0; z-index:1; }
-    td { font-size:14px; }
-    input, select, textarea {
-      width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:12px;
-      padding:9px 10px;
-      font-size:14px;
-      background:#fff;
-    }
-    .inline-actions {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    .tiny-btn {
-      border:1px solid var(--line);
-      background:#fff;
-      color:#334155;
-      border-radius:10px;
-      padding:6px 10px;
-      font-size:12px;
-      cursor:pointer;
-      font-weight:700;
-    }
-    .tiny-btn.del {
-      color:#b91c1c;
-      border-color:#fecaca;
-      background:#fff5f5;
-    }
-    .footer-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-      margin-top:18px;
-    }
+    .rank-list { display:grid; gap:14px; }
+    .rank-item { border:1px solid var(--line); border-radius:22px; padding:18px; }
+    .rank-top { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
     .muted { color:var(--muted); }
+    .big { font-size:18px; font-weight:700; }
+    .badge { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:6px 12px; font-size:12px; font-weight:700; }
+    .ok { background:#dcfce7; color:#166534; }
+    .warn { background:#fef3c7; color:#92400e; }
+    .danger { background:#fee2e2; color:#991b1b; }
+    .info-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-top:18px; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:20px; }
+    table { width:100%; min-width:1280px; border-collapse:collapse; background:#fff; }
+    th, td { padding:11px 12px; border-bottom:1px solid var(--line); text-align:left; font-size:14px; vertical-align:middle; }
+    th { background:#f8fafc; color:#475569; font-size:13px; position:sticky; top:0; z-index:2; }
+    tbody tr:last-child td { border-bottom:none; }
+    .input, input[type="number"], input[type="date"], input[type="text"], select {
+      width:100%; border:1px solid #cbd5e1; border-radius:12px; padding:9px 10px; font-size:14px; background:#fff;
+    }
+    .soft { background:#f8fafc; border:1px solid #f1f5f9; border-radius:20px; padding:16px; }
+    .toolbar { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-bottom:12px; }
+    .toolbar p { margin:6px 0 0; font-size:13px; color:var(--muted); line-height:1.7; }
+    .row-actions { display:flex; gap:6px; flex-wrap:wrap; }
+    .tiny { border:1px solid var(--line); background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; cursor:pointer; }
+    .tiny.del { border-color:#fecaca; color:#b91c1c; background:#fff5f5; }
+    .two-col-bottom { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; margin-top:18px; }
+    .stack { display:grid; gap:10px; }
+    .log-item { border:1px solid var(--line); border-radius:16px; padding:12px 14px; }
     .toast {
-      position:fixed;
-      right:24px;
-      top:24px;
-      background:rgba(15,23,42,.88);
-      color:#fff;
-      padding:12px 16px;
-      border-radius:14px;
-      box-shadow:0 14px 30px rgba(2,6,23,.26);
+      display:none; position:fixed; right:22px; top:22px; z-index:999;
+      background:rgba(15,23,42,.9); color:#fff; padding:12px 16px; border-radius:14px; box-shadow: 0 16px 36px rgba(2,6,23,.28);
       font-size:14px;
-      z-index:999;
-      display:none;
+    }
+    @media (max-width: 1280px) {
+      .grid-4, .info-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .grid-2, .two-col-bottom { grid-template-columns:1fr; }
+      .grid-3 { grid-template-columns:1fr; }
+    }
+    @media (max-width: 720px) {
+      .page { padding:14px; }
+      .grid-4, .info-grid { grid-template-columns:1fr; }
+      .mini-grid { grid-template-columns:1fr; }
+      .metric-value { font-size:26px; }
+      .hero h1 { font-size:28px; }
+      .actions { justify-content:flex-start; }
     }
 
-    @media (max-width: 1200px) {
-      .grid-4, .info-grid { grid-template-columns:repeat(2,1fr); }
-      .grid-2, .footer-grid { grid-template-columns:1fr; }
-    }
-    @media (max-width: 700px) {
-      .wrap { padding:14px; }
-      .hero h1 { font-size:28px; }
-      .grid-4, .info-grid { grid-template-columns:1fr; }
-      .card .value { font-size:22px; }
-    }
+
+
+.expense-stack {
+  display: grid;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.expense-chart-wrap {
+  min-height: 360px;
+}
+
+.top3-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.top3-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 18px;
+  background: #fff;
+}
+
+.top3-rank {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.top3-name {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.top3-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.top3-percent {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.top3-empty {
+  border: 1px dashed var(--line);
+  border-radius: 22px;
+  padding: 18px;
+  color: var(--muted);
+  background: #f8fafc;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 1100px) {
+  .top3-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
   </style>
 </head>
 <body>
   <div id="toast" class="toast"></div>
-
-  <div class="wrap">
-    <div class="top-actions">
+  <div class="page">
+    <div class="actions">
       <button class="btn" id="btnSave">保存本地数据</button>
       <button class="btn" id="btnExport">导出备份</button>
       <button class="btn" id="btnCopy">复制备份内容</button>
-      <button class="btn" id="btnImportTrigger">导入恢复</button>
+      <button class="btn" id="btnImport">导入恢复</button>
       <button class="btn" id="btnSnapshot">创建快照</button>
       <button class="btn" id="btnFullscreen">全屏</button>
-      <input type="file" id="fileImport" accept="application/json" style="display:none;">
+      <input id="fileInput" type="file" accept="application/json" hidden />
     </div>
 
-    <div class="hero">
-      <div class="eyebrow">根据基础台账自动计算</div>
-      <h1>麦艾斯 · 现金流预测趋势模型</h1>
-      <p>支持每日现金流登记、月度固定支出录入、滚动累计结余、月度预警、备份恢复、版本快照和经营指标看板。数据默认保存到当前浏览器本地。</p>
-      <div class="safe-line" id="safeLineShow">月度预警安全线：¥ 100,000</div>
+    <section class="hero">
+      <small>根据基础台账自动计算</small>
+      <div class="hero-top">
+        <div>
+          <h1>麦艾斯 · 现金流预测趋势模型</h1>
+          <p>支持每日现金流登记、月度固定支出录入、滚动累计结余、月度预警、备份恢复、版本快照和经营指标看板。数据默认保存到当前浏览器本地。</p>
+        </div>
+        <div class="safe-badge" id="safeLineBadge">月度预警安全线：¥ 100,000</div>
+      </div>
+    </section>
+
+    <section class="grid-4">
+      <div class="card">
+        <div class="metric-head">
+          <div>
+            <div class="metric-label">当前可用余额 <span class="help" data-tip="在每日现金流登记表中，筛选日期小于等于系统当天的记录，取最后一条记录的滚动累计结余。">?</span></div>
+            <div class="metric-value" id="currentAvailable">¥ 0</div>
+            <div class="metric-sub">取截至系统当天最近一条滚动累计结余</div>
+          </div>
+          <div class="iconbox tone-blue">💼</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="metric-head">
+          <div>
+            <div class="metric-label">全年运营评级 <span class="help" data-tip="评级共3档：高风险、预警、健康。年末预测余额低于0为高风险；大于等于0但低于安全线为预警；大于等于安全线为健康。">?</span></div>
+            <div class="metric-value" id="annualRating">全年健康</div>
+            <div class="metric-sub">根据自动汇总结果判断</div>
+          </div>
+          <div class="iconbox tone-green">🛡️</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="metric-head">
+          <div>
+            <div class="metric-label">当月滚动结余 <span class="help" data-tip="按当前系统月份汇总收入、支出和固定成本形成当月月末滚动累计结余。">?</span></div>
+            <div class="metric-value" id="currentMonthEnding">3月：¥ 0</div>
+            <div class="metric-sub">由台账自动计算</div>
+          </div>
+          <div class="iconbox tone-amber">💰</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="metric-head">
+          <div>
+            <div class="metric-label">年末预测余额 <span class="help" data-tip="从起始资金开始，逐月叠加月度净现金流得到全年滚动累计结余。">?</span></div>
+            <div class="metric-value" id="yearEndBalance">¥ 0</div>
+            <div class="metric-sub">全年滚动累计结余</div>
+          </div>
+          <div class="iconbox tone-purple">📈</div>
+        </div>
+      </div>
+    </section>
+
+  <section class="grid-2">
+  <div class="card">
+    <div class="title-row">
+      <h2>支出结构分布</h2>
+      <span class="help" data-tip="按照月度固定支出明细表汇总各支出类别金额，并按占比从高到低展示。当前仅显示有效非零 TOP3 支出项。">?</span>
     </div>
 
-    <div class="grid-4">
-      <div class="card">
-        <div class="label">当前可用余额 <span class="help" data-tip="计算逻辑：在每日现金流登记表中，筛选日期小于等于系统当天的记录，取最后一条记录的滚动累计结余作为当前可用余额。">?</span></div>
-        <div class="value" id="currentAvailable">¥ 0</div>
-        <div class="sub">取截至系统当天最近一条滚动累计结余</div>
+    <div class="expense-stack">
+      <div class="expense-chart-wrap">
+        <svg id="expenseBreakdownSvg" class="svg-chart" viewBox="0 0 980 360"></svg>
       </div>
-      <div class="card">
-        <div class="label">全年运营评级 <span class="help" data-tip="评级共 3 档：高风险、预警、健康。年末预测余额低于 0 为高风险；大于等于 0 且低于月度预警安全线为预警；大于等于安全线为健康。">?</span></div>
-        <div class="value" id="annualRating">全年健康</div>
-        <div class="sub">根据年末预测余额与安全线自动判断</div>
-      </div>
-      <div class="card">
-        <div class="label">当月滚动结余 <span class="help" data-tip="计算逻辑：按当前系统月份汇总该月收入、变动支出和固定支出后，形成当月月末滚动累计结余。">?</span></div>
-        <div class="value" id="currentMonthEnding">本月：¥ 0</div>
-        <div class="sub">由台账自动计算</div>
-      </div>
-      <div class="card">
-        <div class="label">年末预测余额 <span class="help" data-tip="计算逻辑：从起始资金开始，逐月叠加每月净现金流，得到 12 月月末滚动累计结余。">?</span></div>
-        <div class="value" id="yearEndBalance">¥ 0</div>
-        <div class="sub">全年滚动累计结余</div>
-      </div>
+      <div id="expenseTopList" class="top3-grid"></div>
     </div>
+  </div>
 
-    <div class="grid-2">
-      <div class="panel">
-        <div class="section-title">资金压力月份 <span class="help" data-tip="按月度净现金流从低到高筛选压力最大的月份。净现金流为负且绝对值越大，表示资金压力越高。">?</span></div>
-        <div id="pressureMonths" class="mini-list"></div>
-      </div>
-      <div class="panel">
-        <div class="section-title">回款依赖月份分析 <span class="help" data-tip="收支比 = 当月收入 ÷ 当月总支出。数值越低，说明当月支出对回款覆盖依赖越强。">?</span></div>
-        <div id="receiptMonths" class="mini-list"></div>
-      </div>
+  <div class="card">
+    <div class="title-row"><h2>月度固定支出趋势预测</h2><span class="help" data-tip="红线表示每月固定支出合计，蓝线表示每月其他固定支出。用于观察固定成本高峰月份。">?</span></div>
+    <div class="chart-box">
+      <svg id="fixedTrendSvg" class="svg-chart" viewBox="0 0 720 340"></svg>
     </div>
+    <div class="legend"><span>固定支出合计</span><span>其他固定支出</span></div>
+  </div>
+</section>
 
-    <div class="info-grid">
+    <section class="grid-2">
       <div class="card">
-        <div class="label">全年总收入 <span class="help" data-tip="统计口径：全年各月实际收入与预测收入合计。">?</span></div>
-        <div class="value" id="annualIncome">¥ 0</div>
+        <div class="title-row"><h2>资金压力月份</h2><span class="help" data-tip="按月度净现金流从低到高筛选压力最大的月份。净现金流为负且绝对值越大，表示压力越高。">?</span></div>
+        <div id="pressureMonths" class="stack"></div>
       </div>
       <div class="card">
-        <div class="label">全年总支出 <span class="help" data-tip="统计口径：全年变动支出与固定支出合计。">?</span></div>
-        <div class="value" id="annualExpense">¥ 0</div>
+        <div class="title-row"><h2>回款依赖月份分析</h2><span class="help" data-tip="收支比 = 当月收入 ÷ 当月总支出。数值越低，说明当月支出对回款覆盖依赖越强。">?</span></div>
+        <div id="receiptMonths" class="stack"></div>
       </div>
-      <div class="card">
-        <div class="label">全年净现金流 <span class="help" data-tip="统计口径：全年总收入减全年总支出。">?</span></div>
-        <div class="value" id="annualNet">¥ 0</div>
-      </div>
-      <div class="card">
-        <div class="label">资金安全结论 <span class="help" data-tip="若年末预测余额大于等于月度预警安全线，则判断为全年支出盈余；否则提示需关注资金安全。">?</span></div>
-        <div class="value" id="annualConclusion">全年支出盈余</div>
-      </div>
-    </div>
+    </section>
 
-    <div class="panel">
-      <div class="section-title">月度经营总表（自动汇总） <span class="help" data-tip="月度总收入来自每日现金流登记表中的实际收入与预测收入；月度总支出 = 每日变动支出 + 月度固定支出；月末滚动累计结余按月度净现金流逐月累计。">?</span></div>
+    <section class="info-grid">
+      <div class="card">
+        <div class="metric-label">全年总收入 <span class="help" data-tip="全年实际收入与预测收入合计。">?</span></div>
+        <div class="metric-value" id="annualIncome">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">全年总支出 <span class="help" data-tip="全年变动支出与固定支出合计。">?</span></div>
+        <div class="metric-value" id="annualExpense">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">全年净现金流 <span class="help" data-tip="全年总收入减全年总支出。">?</span></div>
+        <div class="metric-value" id="annualNet">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">资金安全结论 <span class="help" data-tip="若年末预测余额大于等于月度预警安全线，则为全年支出盈余；否则需关注资金安全。">?</span></div>
+        <div class="metric-value" id="annualConclusion">全年支出盈余</div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="title-row"><h2>月度经营总表（自动汇总）</h2><span class="help" data-tip="月度总收入来自每日现金流登记表中的实际收入+预测收入；月度总支出 = 每日变动支出 + 月度固定支出；月末滚动累计结余按月度净现金流逐月累计。">?</span></div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -333,31 +365,31 @@
           <tbody id="monthlySummaryBody"></tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <div class="panel">
-      <div class="section-title">基础数据录入区</div>
+    <section class="card" style="margin-top:18px;">
+      <div class="title-row"><h2>基础数据录入区</h2></div>
 
-      <div class="grid-2" style="margin-bottom:16px;">
-        <div class="card" style="padding:16px;">
-          <div class="label">起始资金</div>
+      <div class="grid-2" style="margin-top:0; margin-bottom:16px;">
+        <div class="soft">
+          <div class="metric-label">起始资金</div>
           <input id="openingCashInput" type="number" />
         </div>
-        <div class="card" style="padding:16px;">
-          <div class="label">月度预警安全线</div>
+        <div class="soft">
+          <div class="metric-label">月度预警安全线</div>
           <input id="safeLineInput" type="number" />
         </div>
       </div>
 
-      <div class="toolbar-row">
+      <div class="toolbar">
         <div>
-          <div class="section-title" style="margin-bottom:6px;">每日现金流登记表 <span class="help" data-tip="累计逻辑：第 1 行 = 起始资金 + 第 1 行当日净现金流；第 N 行 = 上一行滚动累计结余 + 第 N 行当日净现金流。预警逻辑：余额低于安全线触发预警，低于 0 触发高风险。">?</span></div>
-          <div class="desc">第 1 行 = 起始资金 + 第 1 行当日净现金流；第 N 行 = 上一行滚动累计结余 + 第 N 行当日净现金流。</div>
+          <div class="title-row" style="margin-bottom:4px;"><h3>每日现金流登记表</h3><span class="help" data-tip="累计逻辑：第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。预警逻辑：余额低于安全线触发预警，低于0触发高风险。">?</span></div>
+          <p>第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。</p>
         </div>
         <button class="btn primary" id="btnAddDaily">新增一行</button>
       </div>
 
-      <div class="table-wrap" style="margin-bottom:18px;">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -379,10 +411,10 @@
         </table>
       </div>
 
-      <div class="toolbar-row">
+      <div class="toolbar" style="margin-top:18px;">
         <div>
-          <div class="section-title" style="margin-bottom:6px;">月度固定支出明细表 <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总和预警分析。">?</span></div>
-          <div class="desc">默认列出 1-12 月，供全年规划使用。</div>
+          <div class="title-row" style="margin-bottom:4px;"><h3>月度固定支出明细表</h3><span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总、支出结构分析和趋势预测。">?</span></div>
+          <p>默认列出 1-12 月，供全年规划使用。</p>
         </div>
       </div>
 
@@ -407,119 +439,88 @@
           <tbody id="fixedBody"></tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <div class="footer-grid">
-      <div class="panel">
-        <div class="section-title">操作日志（最近20条）</div>
-        <div id="logList" class="mini-list"></div>
+    <section class="two-col-bottom">
+      <div class="card">
+        <div class="title-row"><h2>操作日志（最近20条）</h2></div>
+        <div id="logList" class="stack"></div>
       </div>
-      <div class="panel">
-        <div class="section-title">版本快照（最近10次）</div>
-        <div id="snapshotList" class="mini-list"></div>
+      <div class="card">
+        <div class="title-row"><h2>版本快照（最近10次）</h2></div>
+        <div id="snapshotList" class="stack"></div>
       </div>
-    </div>
+    </section>
   </div>
 
   <script>
-    const STORAGE_KEY = "cashflow_dashboard_static_v1";
     const MONTHS = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
-
-    const createDefaultState = () => ({
+    const STORAGE_KEY = "cashflow_dashboard_v8_html";
+    const CURRENT_MONTH = "3月";
+    const DEFAULT_STATE = {
       openingCash: 322731,
       safeLine: 100000,
       dailyCashflow: [
-        { id: 1, seq: 1, note: "示例数据", date: "2026-03-26", month: "3月", actualIncome: 0, forecastIncome: 0, actualExpense: 370.96, forecastExpense: 0 }
+        { id: 1, seq: 1, date: "2026/3/26", month: "3月", actualIncome: 0, forecastIncome: 0, actualExpense: 370.96, forecastExpense: 0, note: "" }
       ],
-      fixedExpense: MONTHS.map(month => ({
-        month, salary: 0, social: 0, fund: 0, activity: 0, utilities: 0, parking: 0, rent: 0, business: 0, personalDebt: 0, other: 0
-      })),
+      fixedExpense: MONTHS.map((month) => ({ month, salary: 0, social: 0, fund: 0, activity: 0, utilities: 0, parking: 0, rent: 0, business: 0, personalDebt: 0, other: 0 })),
       actionLogs: [],
       snapshots: []
-    });
+    };
 
     let state = loadState();
+    let toastTimer = null;
 
-    function n(v) {
-      const x = Number(v);
-      return Number.isFinite(x) ? x : 0;
+    function num(v) { return Number.isFinite(Number(v)) ? Number(v) : 0; }
+    function money(v) { return new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 2 }).format(num(v)); }
+    function levelOf(value, line) { return value < 0 ? "高风险" : value < line ? "预警" : "健康"; }
+    function sumFixed(r = {}) { return [r.salary, r.social, r.fund, r.activity, r.utilities, r.parking, r.rent, r.business, r.personalDebt, r.other].reduce((s, v) => s + num(v), 0); }
+    function parseDate(value) {
+      if (!value) return null;
+      const parts = String(value).split("/");
+      if (parts.length !== 3) return null;
+      const dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 23, 59, 59, 999);
+      return Number.isNaN(dt.getTime()) ? null : dt;
     }
-
-    function money(v) {
-      return n(v).toLocaleString("zh-CN", { maximumFractionDigits: 2 });
-    }
-
-    function monthOfDate(dateStr) {
-      if (!dateStr) return "1月";
-      const d = new Date(dateStr + "T00:00:00");
-      if (Number.isNaN(d.getTime())) return "1月";
-      return (d.getMonth() + 1) + "月";
-    }
-
-    function levelOf(balance, safeLine) {
-      if (balance < 0) return "高风险";
-      if (balance < safeLine) return "预警";
-      return "健康";
-    }
-
-    function badgeHtml(level) {
-      if (level === "高风险") return '<span class="badge danger">高风险</span>';
-      if (level === "预警") return '<span class="badge warn">预警</span>';
-      return '<span class="badge ok">健康</span>';
-    }
-
-    function sumFixed(item) {
-      return [
-        item.salary, item.social, item.fund, item.activity, item.utilities,
-        item.parking, item.rent, item.business, item.personalDebt, item.other
-      ].reduce((s, v) => s + n(v), 0);
-    }
-
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return createDefaultState();
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
         const parsed = JSON.parse(raw);
-        const base = createDefaultState();
         return {
-          ...base,
+          ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
           ...parsed,
-          fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : base.fixedExpense,
+          fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : JSON.parse(JSON.stringify(DEFAULT_STATE.fixedExpense)),
           actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
           snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
         };
       } catch {
-        return createDefaultState();
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
       }
     }
-
     function saveState(logText, toastText) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       if (logText) pushLog(logText);
       if (toastText) showToast(toastText);
     }
-
     function pushLog(action) {
-      state.actionLogs.unshift({
-        time: new Date().toLocaleString("zh-CN"),
-        action
-      });
+      state.actionLogs.unshift({ time: new Date().toLocaleString(), action });
       state.actionLogs = state.actionLogs.slice(0, 20);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderLogs();
     }
-
     function showToast(text) {
       const el = document.getElementById("toast");
       el.textContent = text;
       el.style.display = "block";
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(() => {
-        el.style.display = "none";
-      }, 2200);
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.style.display = "none"; }, 1800);
     }
-
-    function exportBackup() {
+    function badge(level) {
+      const cls = level === "高风险" ? "danger" : level === "预警" ? "warn" : "ok";
+      return `<span class="badge ${cls}">${level}</span>`;
+    }
+    function exportData() {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -530,7 +531,6 @@
       pushLog("导出了一份备份文件");
       showToast("📁 已导出备份");
     }
-
     async function copyBackup() {
       try {
         await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
@@ -540,40 +540,32 @@
         showToast("复制失败");
       }
     }
-
-    function addSnapshot() {
-      state.snapshots.unshift({
-        id: Date.now(),
-        time: new Date().toLocaleString("zh-CN"),
-        data: JSON.parse(JSON.stringify(state))
-      });
+    function createSnapshot() {
+      state.snapshots.unshift({ id: Date.now(), time: new Date().toLocaleString(), data: JSON.parse(JSON.stringify(state)) });
       state.snapshots = state.snapshots.slice(0, 10);
       saveState("创建了一次版本快照", "🧷 已创建版本快照");
       renderAll();
     }
-
     function restoreSnapshot(id) {
       const snap = state.snapshots.find(x => x.id === id);
       if (!snap) return;
-      const keepLogs = state.actionLogs.slice();
-      const keepSnapshots = state.snapshots.slice();
+      const logs = state.actionLogs.slice();
+      const snaps = state.snapshots.slice();
       state = JSON.parse(JSON.stringify(snap.data));
-      state.actionLogs = keepLogs;
-      state.snapshots = keepSnapshots;
+      state.actionLogs = logs;
+      state.snapshots = snaps;
       saveState(`恢复到快照：${snap.time}`, "♻️ 已恢复到该快照");
       renderAll();
     }
-
-    function importBackup(file) {
+    function importData(file) {
       const reader = new FileReader();
       reader.onload = () => {
         try {
           const parsed = JSON.parse(reader.result);
-          const base = createDefaultState();
           state = {
-            ...base,
+            ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
             ...parsed,
-            fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : base.fixedExpense,
+            fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : JSON.parse(JSON.stringify(DEFAULT_STATE.fixedExpense)),
             actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
             snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
           };
@@ -587,356 +579,290 @@
     }
 
     function getDerived() {
-      const safeLine = n(state.safeLine);
-      const openingCash = n(state.openingCash);
+      const ordered = [...state.dailyCashflow].sort((a, b) => num(a.seq) - num(b.seq) || num(a.id) - num(b.id));
+      const dailyRows = ordered.reduce((acc, row, index) => {
+        const dailyNet = num(row.actualIncome) + num(row.forecastIncome) - num(row.actualExpense) - num(row.forecastExpense);
+        const prevRolling = index === 0 ? num(state.openingCash) : num(acc[index - 1].rollingBalance);
+        const rollingBalance = prevRolling + dailyNet;
+        acc.push({ ...row, dailyNet, rollingBalance, dailyStatus: levelOf(rollingBalance, num(state.safeLine)) });
+        return acc;
+      }, []);
 
-      const dailyRows = [...state.dailyCashflow]
-        .sort((a, b) => n(a.seq) - n(b.seq))
-        .map((row, idx, arr) => {
-          const dailyNet = n(row.actualIncome) + n(row.forecastIncome) - n(row.actualExpense) - n(row.forecastExpense);
-          let rollingBalance;
-          if (idx === 0) {
-            rollingBalance = openingCash + dailyNet;
-          } else {
-            const prev = arr[idx - 1]._rollingBalance;
-            rollingBalance = n(prev) + dailyNet;
-          }
-          row._rollingBalance = rollingBalance;
-          return {
-            ...row,
-            dailyNet,
-            rollingBalance,
-            dailyStatus: levelOf(rollingBalance, safeLine)
-          };
-        });
+      let rollingMonth = num(state.openingCash);
+      const monthlySummary = MONTHS.map((month) => {
+        const rows = dailyRows.filter((r) => r.month === month);
+        const income = rows.reduce((s, r) => s + num(r.actualIncome) + num(r.forecastIncome), 0);
+        const variableExpense = rows.reduce((s, r) => s + num(r.actualExpense) + num(r.forecastExpense), 0);
+        const fixedTotal = sumFixed(state.fixedExpense.find((r) => r.month === month));
+        const expense = variableExpense + fixedTotal;
+        const net = income - expense;
+        rollingMonth += net;
+        return { month, income, variableExpense, fixedTotal, expense, net, endingCash: rollingMonth, level: levelOf(rollingMonth, num(state.safeLine)) };
+      });
 
       const today = new Date();
-      today.setHours(23,59,59,999);
-
-      const eligible = dailyRows.filter(r => {
-        if (!r.date) return false;
-        const d = new Date(r.date + "T00:00:00");
-        if (Number.isNaN(d.getTime())) return false;
-        d.setHours(23,59,59,999);
-        return d.getTime() <= today.getTime();
+      today.setHours(23, 59, 59, 999);
+      const eligibleRows = dailyRows.filter((r) => {
+        const dt = parseDate(r.date);
+        return dt && dt.getTime() <= today.getTime();
       });
 
-      const currentAvailableBalance = eligible.length ? eligible[eligible.length - 1].rollingBalance : openingCash;
-      const currentMonthLabel = (new Date().getMonth() + 1) + "月";
-
-      const monthlySummary = [];
-      let rollingMonth = openingCash;
-
-      for (const month of MONTHS) {
-        const rows = dailyRows.filter(r => r.month === month);
-        const income = rows.reduce((s, r) => s + n(r.actualIncome) + n(r.forecastIncome), 0);
-        const variableExpense = rows.reduce((s, r) => s + n(r.actualExpense) + n(r.forecastExpense), 0);
-        const fixed = state.fixedExpense.find(x => x.month === month) || { month };
-        const fixedTotal = sumFixed(fixed);
-        const totalExpense = variableExpense + fixedTotal;
-        const net = income - totalExpense;
-        rollingMonth += net;
-        monthlySummary.push({
-          month,
-          income,
-          variableExpense,
-          fixedTotal,
-          totalExpense,
-          net,
-          endingCash: rollingMonth,
-          level: levelOf(rollingMonth, safeLine)
-        });
-      }
-
-      const currentMonthSummary = monthlySummary.find(x => x.month === currentMonthLabel) || monthlySummary[0];
-
-      const annualIncome = monthlySummary.reduce((s, x) => s + x.income, 0);
-      const annualExpense = monthlySummary.reduce((s, x) => s + x.totalExpense, 0);
-      const annualNet = annualIncome - annualExpense;
-      const yearEnd = monthlySummary[monthlySummary.length - 1].endingCash;
-      const annualRating = levelOf(yearEnd, safeLine);
-      const annualConclusion = yearEnd >= safeLine ? "全年支出盈余" : "需关注资金安全";
-
-      const pressureMonths = monthlySummary
-        .filter(x => x.net < 0)
-        .sort((a, b) => a.net - b.net)
-        .slice(0, 4);
-
-      const receiptMonths = monthlySummary
-        .filter(x => x.income > 0)
-        .map(x => ({
-          ...x,
-          ratio: x.totalExpense === 0 ? 0 : x.income / x.totalExpense
-        }))
-        .sort((a, b) => b.income - a.income)
-        .slice(0, 4);
-
-      return {
-        dailyRows,
-        monthlySummary,
-        currentAvailableBalance,
-        currentMonthSummary,
-        annualIncome,
-        annualExpense,
-        annualNet,
-        yearEnd,
-        annualRating,
-        annualConclusion,
-        pressureMonths,
-        receiptMonths
+      const annual = {
+        totalIncome: monthlySummary.reduce((s, r) => s + r.income, 0),
+        totalExpense: monthlySummary.reduce((s, r) => s + r.expense, 0),
+        totalNet: monthlySummary.reduce((s, r) => s + r.net, 0),
+        yearEnd: monthlySummary.length ? monthlySummary[monthlySummary.length - 1].endingCash : 0
       };
+
+      const currentAvailableBalance = eligibleRows.length ? eligibleRows[eligibleRows.length - 1].rollingBalance : num(state.openingCash);
+      const currentMonth = monthlySummary.find((m) => m.month === CURRENT_MONTH);
+      const pressureMonths = monthlySummary.filter((m) => m.net < 0).slice().sort((a, b) => a.net - b.net).slice(0, 4);
+      const receiptDependencyMonths = monthlySummary.filter((m) => m.income > 0).map((m) => ({ ...m, ratio: m.expense === 0 ? 0 : m.income / m.expense })).sort((a, b) => b.income - a.income).slice(0, 4);
+      const totalFixedExpense = state.fixedExpense.reduce((s, r) => s + sumFixed(r), 0);
+      const buckets = { "员工工资": 0, "社保": 0, "公积金": 0, "活动经费": 0, "水电杂费": 0, "车位租赁": 0, "房租物业费": 0, "商务费用": 0, "个人借款": 0, "其他固定支出": 0 };
+      state.fixedExpense.forEach((r) => {
+        buckets["员工工资"] += num(r.salary);
+        buckets["社保"] += num(r.social);
+        buckets["公积金"] += num(r.fund);
+        buckets["活动经费"] += num(r.activity);
+        buckets["水电杂费"] += num(r.utilities);
+        buckets["车位租赁"] += num(r.parking);
+        buckets["房租物业费"] += num(r.rent);
+        buckets["商务费用"] += num(r.business);
+        buckets["个人借款"] += num(r.personalDebt);
+        buckets["其他固定支出"] += num(r.other);
+      });
+      const expenseBreakdown = Object.entries(buckets).map(([name, value]) => ({ name, value, percent: totalFixedExpense ? ((value / totalFixedExpense) * 100).toFixed(1) : "0.0" })).sort((a, b) => b.value - a.value);
+      const fixedTrend = state.fixedExpense.map((r) => ({ month: r.month, total: sumFixed(r), other: num(r.other) }));
+      const maxBalance = Math.max(0, ...monthlySummary.map((m) => m.endingCash));
+      const minBalance = Math.min(0, ...monthlySummary.map((m) => m.endingCash));
+      return { dailyRows, monthlySummary, annual, currentAvailableBalance, currentMonth, pressureMonths, receiptDependencyMonths, expenseBreakdown, fixedTrend, maxBalance, minBalance };
     }
 
-    function renderAll() {
-      renderHeader();
-      renderSummary();
-      renderDaily();
-      renderFixed();
-      renderMonthly();
-      renderLogs();
-      renderSnapshots();
+    function renderMetricCards(d) {
+      document.getElementById("safeLineBadge").textContent = `月度预警安全线：¥ ${money(state.safeLine)}`;
+      document.getElementById("currentAvailable").textContent = `¥ ${money(d.currentAvailableBalance)}`;
+      document.getElementById("annualRating").textContent = d.annual.yearEnd >= num(state.safeLine) ? "全年健康" : d.annual.yearEnd >= 0 ? "全年预警" : "全年高风险";
+      document.getElementById("currentMonthEnding").textContent = `${CURRENT_MONTH}：¥ ${money(d.currentMonth ? d.currentMonth.endingCash : 0)}`;
+      document.getElementById("yearEndBalance").textContent = `¥ ${money(d.annual.yearEnd)}`;
+      document.getElementById("annualIncome").textContent = `¥ ${money(d.annual.totalIncome)}`;
+      document.getElementById("annualExpense").textContent = `¥ ${money(d.annual.totalExpense)}`;
+      document.getElementById("annualNet").textContent = `¥ ${money(d.annual.totalNet)}`;
+      document.getElementById("annualConclusion").textContent = d.annual.yearEnd >= num(state.safeLine) ? "全年支出盈余" : "需关注资金安全";
+      document.getElementById("openingCashInput").value = num(state.openingCash);
+      document.getElementById("safeLineInput").value = num(state.safeLine);
     }
 
-    function renderHeader() {
-      document.getElementById("safeLineShow").textContent = "月度预警安全线：¥ " + money(state.safeLine);
-      document.getElementById("openingCashInput").value = n(state.openingCash);
-      document.getElementById("safeLineInput").value = n(state.safeLine);
-    }
+    
 
-    function renderSummary() {
-      const d = getDerived();
-      document.getElementById("currentAvailable").textContent = "¥ " + money(d.currentAvailableBalance);
-      document.getElementById("annualRating").textContent = "全年" + d.annualRating;
-      document.getElementById("currentMonthEnding").textContent = d.currentMonthSummary.month + "：¥ " + money(d.currentMonthSummary.endingCash);
-      document.getElementById("yearEndBalance").textContent = "¥ " + money(d.yearEnd);
 
-      document.getElementById("annualIncome").textContent = "¥ " + money(d.annualIncome);
-      document.getElementById("annualExpense").textContent = "¥ " + money(d.annualExpense);
-      document.getElementById("annualNet").textContent = "¥ " + money(d.annualNet);
-      document.getElementById("annualConclusion").textContent = d.annualConclusion;
+function renderExpenseBreakdown(d) {
+  const svg = document.getElementById("expenseBreakdownSvg");
+  const list = document.getElementById("expenseTopList");
 
-      const pressure = document.getElementById("pressureMonths");
-      pressure.innerHTML = "";
-      if (!d.pressureMonths.length) {
-        pressure.innerHTML = '<div class="mini-item"><div class="t1">暂无压力月</div><div class="t3">当前数据下没有净流出月份</div></div>';
-      } else {
-        d.pressureMonths.forEach(x => {
-          pressure.innerHTML += `
-            <div class="mini-item">
-              <div class="t1">${x.month}</div>
-              <div class="t2">净流出 ¥ ${money(Math.abs(x.net))}</div>
-              <div class="t3">月末余额 ¥ ${money(x.endingCash)}</div>
-            </div>
-          `;
-        });
+  const validItems = d.expenseBreakdown
+    .filter(item => Number(item.value) > 0)
+    .slice(0, 3);
+
+  if (!validItems.length) {
+    svg.innerHTML = `
+      <rect x="0" y="0" width="980" height="360" fill="transparent"></rect>
+      <text x="490" y="180" text-anchor="middle" font-size="20" fill="#94a3b8">暂无有效支出数据</text>
+    `;
+    list.innerHTML = `<div class="top3-empty">当前还没有可展示的非零固定支出项。</div>`;
+    return;
+  }
+
+  const width = 980;
+  const height = 360;
+  const left = 140;
+  const right = 40;
+  const top = 30;
+  const bottom = 42;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const max = Math.max(...validItems.map(x => Number(x.value)), 1);
+  const rowGap = 34;
+  const barHeight = 28;
+
+  let grid = "";
+  for (let i = 0; i <= 4; i++) {
+    const x = left + (plotW / 4) * i;
+    const tickValue = Math.round((max / 4) * i);
+    grid += `<line x1="${x}" y1="${top}" x2="${x}" y2="${height - bottom}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
+    grid += `<text x="${x}" y="${height - 12}" text-anchor="middle" font-size="12" fill="#64748b">${tickValue}</text>`;
+  }
+
+  const colors = ["#ef4444", "#f59e0b", "#8b5cf6"];
+  let bars = "";
+
+  validItems.forEach((item, i) => {
+    const y = top + i * (barHeight + rowGap) + 38;
+    const barW = (Number(item.value) / max) * plotW;
+    const color = colors[i % colors.length];
+
+    bars += `<text x="${left - 14}" y="${y + 19}" text-anchor="end" font-size="15" fill="#334155">${item.name}</text>`;
+    bars += `<rect x="${left}" y="${y}" width="${barW}" height="${barHeight}" rx="10" fill="${color}" />`;
+    bars += `<text x="${left + barW + 10}" y="${y + 19}" font-size="13" fill="#64748b">¥ ${money(item.value)}</text>`;
+  });
+
+  svg.innerHTML = `
+    <rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
+    ${grid}
+    ${bars}
+  `;
+
+  list.innerHTML = validItems.map((item, i) => `
+    <div class="top3-card">
+      <div class="top3-rank">TOP ${i + 1}</div>
+      <div class="top3-name">${item.name}</div>
+      <div class="top3-value">¥ ${money(item.value)}</div>
+      <div class="top3-percent">占比 ${item.percent}%</div>
+    </div>
+  `).join("");
+}
+
+
+
+
+
+    function renderFixedTrend(d) {
+      const svg = document.getElementById("fixedTrendSvg");
+      const width = 720, height = 340, left = 50, right = 20, top = 20, bottom = 40;
+      const max = Math.max(1, ...d.fixedTrend.map(x => Math.max(x.total, x.other)));
+      const plotW = width - left - right;
+      const plotH = height - top - bottom;
+      const xStep = plotW / (d.fixedTrend.length - 1 || 1);
+      function yOf(v){ return top + plotH - (v / max) * plotH; }
+      let grid = "";
+      for (let i=0;i<=4;i++) {
+        const y = top + (plotH / 4) * i;
+        const val = Math.round(max - (max / 4) * i);
+        grid += `<line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
+        grid += `<text x="${left-8}" y="${y+4}" text-anchor="end" font-size="12" fill="#64748b">${val}</text>`;
       }
-
-      const receipt = document.getElementById("receiptMonths");
-      receipt.innerHTML = "";
-      if (!d.receiptMonths.length) {
-        receipt.innerHTML = '<div class="mini-item"><div class="t1">暂无回款月份</div><div class="t3">当前数据下还没有收入月份</div></div>';
-      } else {
-        d.receiptMonths.forEach(x => {
-          receipt.innerHTML += `
-            <div class="mini-item">
-              <div class="t1">${x.month}</div>
-              <div class="t2">回款 ¥ ${money(x.income)}</div>
-              <div class="t3">收支比 ${x.ratio.toFixed(2)} ｜ 支出 ¥ ${money(x.totalExpense)}</div>
-            </div>
-          `;
-        });
-      }
+      let labels = "";
+      d.fixedTrend.forEach((p, i) => {
+        const x = left + xStep * i;
+        labels += `<text x="${x}" y="${height-10}" text-anchor="middle" font-size="12" fill="#475569">${p.month}</text>`;
+      });
+      const line1 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.total)}`).join(" ");
+      const line2 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.other)}`).join(" ");
+      let dots = "";
+      d.fixedTrend.forEach((p, i) => {
+        const x = left + xStep * i;
+        dots += `<circle cx="${x}" cy="${yOf(p.total)}" r="4" fill="#ef4444"/>`;
+        dots += `<text x="${x}" y="${yOf(p.total)-8}" text-anchor="middle" font-size="11" fill="#64748b">${money(p.total)}</text>`;
+        dots += `<circle cx="${x}" cy="${yOf(p.other)}" r="3.5" fill="#3b82f6"/>`;
+      });
+      svg.innerHTML = `${grid}<polyline fill="none" stroke="#ef4444" stroke-width="3" points="${line1}"/><polyline fill="none" stroke="#3b82f6" stroke-width="2" points="${line2}"/>${dots}${labels}`;
     }
 
-    function renderMonthly() {
-      const d = getDerived();
+    function renderMonthlySummary(d) {
       const body = document.getElementById("monthlySummaryBody");
-      body.innerHTML = "";
-      d.monthlySummary.forEach(x => {
-        body.innerHTML += `
-          <tr>
-            <td>${x.month}</td>
-            <td>¥ ${money(x.income)}</td>
-            <td>¥ ${money(x.variableExpense)}</td>
-            <td>¥ ${money(x.fixedTotal)}</td>
-            <td>¥ ${money(x.totalExpense)}</td>
-            <td>¥ ${money(x.net)}</td>
-            <td>¥ ${money(x.endingCash)}</td>
-            <td>${badgeHtml(x.level)}</td>
-          </tr>
-        `;
-      });
+      body.innerHTML = d.monthlySummary.map((row) => `
+        <tr>
+          <td>${row.month}</td>
+          <td>¥ ${money(row.income)}</td>
+          <td>¥ ${money(row.variableExpense)}</td>
+          <td>¥ ${money(row.fixedTotal)}</td>
+          <td>¥ ${money(row.expense)}</td>
+          <td>¥ ${money(row.net)}</td>
+          <td>¥ ${money(row.endingCash)}</td>
+          <td>${badge(row.level)}</td>
+        </tr>
+      `).join("");
     }
 
-    function renderDaily() {
-      const d = getDerived();
+    function renderPressure(d) {
+      const el = document.getElementById("pressureMonths");
+      el.innerHTML = d.pressureMonths.length ? d.pressureMonths.map((it) => `
+        <div class="log-item">
+          <div class="muted">${it.month}</div>
+          <div class="big" style="margin-top:4px;">净流出 ¥ ${money(Math.abs(it.net))}</div>
+          <div class="muted" style="margin-top:6px;">月末余额 ¥ ${money(it.endingCash)}</div>
+        </div>`).join("") : `<div class="log-item muted">暂无压力月份</div>`;
+    }
+
+    function renderReceipt(d) {
+      const el = document.getElementById("receiptMonths");
+      el.innerHTML = d.receiptDependencyMonths.length ? d.receiptDependencyMonths.map((it) => `
+        <div class="log-item">
+          <div class="muted">${it.month}</div>
+          <div class="big" style="margin-top:4px;">回款 ¥ ${money(it.income)}</div>
+          <div class="muted" style="margin-top:6px;">收支比 ${it.ratio.toFixed(2)} ｜ 支出 ¥ ${money(it.expense)}</div>
+        </div>`).join("") : `<div class="log-item muted">暂无回款月份</div>`;
+    }
+
+    function renderDaily(d) {
       const body = document.getElementById("dailyBody");
-      body.innerHTML = "";
-
-      d.dailyRows.forEach(row => {
-        body.innerHTML += `
-          <tr>
-            <td>${row.seq}</td>
-            <td><input value="${escapeHtml(row.note || "")}" data-id="${row.id}" data-field="note" data-type="daily-text"></td>
-            <td>
-              <div class="inline-actions">
-                <button class="tiny-btn" onclick="moveDaily(${row.id}, 'up')">上移</button>
-                <button class="tiny-btn" onclick="moveDaily(${row.id}, 'down')">下移</button>
-                <button class="tiny-btn del" onclick="deleteDaily(${row.id})">删除</button>
-              </div>
-            </td>
-            <td><input type="date" value="${row.date || ""}" data-id="${row.id}" data-field="date" data-type="daily-date"></td>
-            <td>
-              <select data-id="${row.id}" data-field="month" data-type="daily-text">
-                ${MONTHS.map(m => `<option value="${m}" ${row.month === m ? "selected" : ""}>${m}</option>`).join("")}
-              </select>
-            </td>
-            <td><input type="number" value="${n(row.actualIncome)}" data-id="${row.id}" data-field="actualIncome" data-type="daily-num"></td>
-            <td><input type="number" value="${n(row.forecastIncome)}" data-id="${row.id}" data-field="forecastIncome" data-type="daily-num"></td>
-            <td><input type="number" value="${n(row.actualExpense)}" data-id="${row.id}" data-field="actualExpense" data-type="daily-num"></td>
-            <td><input type="number" value="${n(row.forecastExpense)}" data-id="${row.id}" data-field="forecastExpense" data-type="daily-num"></td>
-            <td>¥ ${money(row.dailyNet)}</td>
-            <td>¥ ${money(row.rollingBalance)}</td>
-            <td>${badgeHtml(row.dailyStatus)}</td>
-          </tr>
-        `;
-      });
-
-      body.querySelectorAll("input,select").forEach(el => {
-        el.addEventListener("change", onDailyChange);
-      });
+      body.innerHTML = d.dailyRows.map((r) => `
+        <tr>
+          <td>${r.seq}</td>
+          <td><input type="text" value="${escapeHtml(r.note || "")}" onchange="updateDailyText(${r.id}, 'note', this.value)"></td>
+          <td>
+            <div class="row-actions">
+              <button class="tiny" onclick="moveDailyRow(${r.id}, 'up')">上移</button>
+              <button class="tiny" onclick="moveDailyRow(${r.id}, 'down')">下移</button>
+              <button class="tiny del" onclick="deleteDailyRow(${r.id})">删除</button>
+            </div>
+          </td>
+          <td><input type="date" value="${(r.date || '').replace(/\//g,'-')}" onchange="updateDailyDate(${r.id}, this.value)"></td>
+          <td>${monthSelectHtml(r.id, r.month)}</td>
+          <td><input type="number" value="${num(r.actualIncome)}" onchange="updateDailyNum(${r.id}, 'actualIncome', this.value)"></td>
+          <td><input type="number" value="${num(r.forecastIncome)}" onchange="updateDailyNum(${r.id}, 'forecastIncome', this.value)"></td>
+          <td><input type="number" value="${num(r.actualExpense)}" onchange="updateDailyNum(${r.id}, 'actualExpense', this.value)"></td>
+          <td><input type="number" value="${num(r.forecastExpense)}" onchange="updateDailyNum(${r.id}, 'forecastExpense', this.value)"></td>
+          <td>¥ ${money(r.dailyNet)}</td>
+          <td>¥ ${money(r.rollingBalance)}</td>
+          <td>${badge(r.dailyStatus)}</td>
+        </tr>
+      `).join("");
     }
 
     function renderFixed() {
       const body = document.getElementById("fixedBody");
-      body.innerHTML = "";
-      state.fixedExpense.forEach(row => {
-        body.innerHTML += `
-          <tr>
-            <td>${row.month}</td>
-            <td><input type="number" value="${n(row.salary)}" data-month="${row.month}" data-field="salary" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.social)}" data-month="${row.month}" data-field="social" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.fund)}" data-month="${row.month}" data-field="fund" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.activity)}" data-month="${row.month}" data-field="activity" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.utilities)}" data-month="${row.month}" data-field="utilities" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.parking)}" data-month="${row.month}" data-field="parking" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.rent)}" data-month="${row.month}" data-field="rent" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.business)}" data-month="${row.month}" data-field="business" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.personalDebt)}" data-month="${row.month}" data-field="personalDebt" class="fixed-num"></td>
-            <td><input type="number" value="${n(row.other)}" data-month="${row.month}" data-field="other" class="fixed-num"></td>
-            <td>¥ ${money(sumFixed(row))}</td>
-          </tr>
-        `;
-      });
-
-      body.querySelectorAll(".fixed-num").forEach(el => {
-        el.addEventListener("change", onFixedChange);
-      });
+      body.innerHTML = state.fixedExpense.map((r) => `
+        <tr>
+          <td>${r.month}</td>
+          <td><input type="number" value="${num(r.salary)}" onchange="updateFixed('${r.month}','salary',this.value)"></td>
+          <td><input type="number" value="${num(r.social)}" onchange="updateFixed('${r.month}','social',this.value)"></td>
+          <td><input type="number" value="${num(r.fund)}" onchange="updateFixed('${r.month}','fund',this.value)"></td>
+          <td><input type="number" value="${num(r.activity)}" onchange="updateFixed('${r.month}','activity',this.value)"></td>
+          <td><input type="number" value="${num(r.utilities)}" onchange="updateFixed('${r.month}','utilities',this.value)"></td>
+          <td><input type="number" value="${num(r.parking)}" onchange="updateFixed('${r.month}','parking',this.value)"></td>
+          <td><input type="number" value="${num(r.rent)}" onchange="updateFixed('${r.month}','rent',this.value)"></td>
+          <td><input type="number" value="${num(r.business)}" onchange="updateFixed('${r.month}','business',this.value)"></td>
+          <td><input type="number" value="${num(r.personalDebt)}" onchange="updateFixed('${r.month}','personalDebt',this.value)"></td>
+          <td><input type="number" value="${num(r.other)}" onchange="updateFixed('${r.month}','other',this.value)"></td>
+          <td><strong>¥ ${money(sumFixed(r))}</strong></td>
+        </tr>
+      `).join("");
     }
 
     function renderLogs() {
-      const box = document.getElementById("logList");
-      box.innerHTML = "";
-      if (!state.actionLogs.length) {
-        box.innerHTML = '<div class="mini-item"><div class="t1">暂无操作记录</div></div>';
-        return;
-      }
-      state.actionLogs.forEach(log => {
-        box.innerHTML += `
-          <div class="mini-item">
-            <div class="t2" style="font-size:16px;">${escapeHtml(log.action)}</div>
-            <div class="t3">${escapeHtml(log.time)}</div>
-          </div>
-        `;
-      });
+      const el = document.getElementById("logList");
+      el.innerHTML = state.actionLogs.length ? state.actionLogs.map((log) => `
+        <div class="log-item">
+          <div style="font-weight:600;">${escapeHtml(log.action)}</div>
+          <div class="muted" style="margin-top:6px; font-size:12px;">${escapeHtml(log.time)}</div>
+        </div>`).join("") : `<div class="log-item muted">暂无操作记录</div>`;
     }
 
     function renderSnapshots() {
-      const box = document.getElementById("snapshotList");
-      box.innerHTML = "";
-      if (!state.snapshots.length) {
-        box.innerHTML = '<div class="mini-item"><div class="t1">暂无版本快照</div></div>';
-        return;
-      }
-      state.snapshots.forEach(snap => {
-        box.innerHTML += `
-          <div class="mini-item">
-            <div class="t2" style="font-size:16px;">版本快照</div>
-            <div class="t3">${escapeHtml(snap.time)}</div>
-            <div style="margin-top:10px;">
-              <button class="tiny-btn" onclick="restoreSnapshot(${snap.id})">恢复</button>
-            </div>
+      const el = document.getElementById("snapshotList");
+      el.innerHTML = state.snapshots.length ? state.snapshots.map((snap) => `
+        <div class="log-item" style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+          <div>
+            <div style="font-weight:600;">版本快照</div>
+            <div class="muted" style="margin-top:6px; font-size:12px;">${escapeHtml(snap.time)}</div>
           </div>
-        `;
-      });
+          <button class="tiny" onclick="restoreSnapshot(${snap.id})">恢复</button>
+        </div>`).join("") : `<div class="log-item muted">暂无版本快照</div>`;
     }
 
-    function onDailyChange(e) {
-      const id = Number(e.target.dataset.id);
-      const field = e.target.dataset.field;
-      const type = e.target.dataset.type;
-      const row = state.dailyCashflow.find(x => x.id === id);
-      if (!row) return;
-
-      if (type === "daily-num") row[field] = n(e.target.value);
-      else row[field] = e.target.value;
-
-      if (field === "date") {
-        row.month = monthOfDate(row.date);
-      }
-      saveState("", "");
-      renderAll();
-    }
-
-    function onFixedChange(e) {
-      const month = e.target.dataset.month;
-      const field = e.target.dataset.field;
-      const row = state.fixedExpense.find(x => x.month === month);
-      if (!row) return;
-      row[field] = n(e.target.value);
-      saveState("", "");
-      renderAll();
-    }
-
-    function addDaily() {
-      const nextId = Date.now();
-      const seq = state.dailyCashflow.length + 1;
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const dd = String(today.getDate()).padStart(2, "0");
-      const date = `${yyyy}-${mm}-${dd}`;
-      state.dailyCashflow.push({
-        id: nextId,
-        seq,
-        note: "",
-        date,
-        month: monthOfDate(date),
-        actualIncome: 0,
-        forecastIncome: 0,
-        actualExpense: 0,
-        forecastExpense: 0
-      });
-      saveState("新增了一行每日现金流记录", "✅ 已新增一行");
-      renderAll();
-    }
-
-    function deleteDaily(id) {
-      state.dailyCashflow = state.dailyCashflow.filter(x => x.id !== id).map((x, i) => ({ ...x, seq: i + 1 }));
-      saveState("删除了一行每日现金流记录", "🗑️ 已删除一行");
-      renderAll();
-    }
-
-    function moveDaily(id, dir) {
-      const list = [...state.dailyCashflow].sort((a,b)=>a.seq-b.seq);
-      const idx = list.findIndex(x => x.id === id);
-      if (idx < 0) return;
-      const target = dir === "up" ? idx - 1 : idx + 1;
-      if (target < 0 || target >= list.length) return;
-      [list[idx], list[target]] = [list[target], list[idx]];
-      state.dailyCashflow = list.map((x, i) => ({ ...x, seq: i + 1 }));
-      saveState(dir === "up" ? "上移了一行记录" : "下移了一行记录", "↕️ 顺序已调整");
-      renderAll();
+    function monthSelectHtml(id, current) {
+      return `<select onchange="updateDailyText(${id}, 'month', this.value)">${MONTHS.map((m) => `<option value="${m}" ${m === current ? 'selected' : ''}>${m}</option>`).join('')}</select>`;
     }
 
     function escapeHtml(str) {
@@ -947,50 +873,105 @@
         .replaceAll('"', "&quot;");
     }
 
-    document.getElementById("btnSave").addEventListener("click", () => {
-      saveState("手动保存了本地数据", "✅ 已保存到本地");
-    });
+    function updateDailyText(id, field, value) {
+      const row = state.dailyCashflow.find(x => x.id === id);
+      if (!row) return;
+      row[field] = value;
+      saveState('', '');
+      renderAll();
+    }
+    function updateDailyDate(id, value) {
+      const row = state.dailyCashflow.find(x => x.id === id);
+      if (!row) return;
+      row.date = (value || '').replace(/-/g, '/');
+      const m = row.date.split('/')[1];
+      if (m) row.month = Number(m) + '月';
+      saveState('', '');
+      renderAll();
+    }
+    function updateDailyNum(id, field, value) {
+      const row = state.dailyCashflow.find(x => x.id === id);
+      if (!row) return;
+      row[field] = num(value);
+      saveState('', '');
+      renderAll();
+    }
+    function addDailyRow() {
+      state.dailyCashflow.push({ id: Date.now(), seq: state.dailyCashflow.length + 1, date: '', month: CURRENT_MONTH, actualIncome: 0, forecastIncome: 0, actualExpense: 0, forecastExpense: 0, note: '' });
+      saveState('新增了一行每日现金流记录', '✅ 已新增一行');
+      renderAll();
+    }
+    function deleteDailyRow(id) {
+      state.dailyCashflow = state.dailyCashflow.filter(x => x.id !== id).map((x, i) => ({ ...x, seq: i + 1 }));
+      saveState('删除了一行每日现金流记录', '🗑️ 已删除一行');
+      renderAll();
+    }
+    function moveDailyRow(id, direction) {
+      const list = [...state.dailyCashflow].sort((a,b)=>num(a.seq)-num(b.seq));
+      const idx = list.findIndex(x => x.id === id);
+      if (idx < 0) return;
+      const target = direction === 'up' ? idx - 1 : idx + 1;
+      if (target < 0 || target >= list.length) return;
+      [list[idx], list[target]] = [list[target], list[idx]];
+      state.dailyCashflow = list.map((x, i) => ({ ...x, seq: i + 1 }));
+      saveState(direction === 'up' ? '上移了一行记录' : '下移了一行记录', '↕️ 顺序已调整');
+      renderAll();
+    }
+    function updateFixed(month, field, value) {
+      const row = state.fixedExpense.find(x => x.month === month);
+      if (!row) return;
+      row[field] = num(value);
+      saveState('', '');
+      renderAll();
+    }
 
-    document.getElementById("btnExport").addEventListener("click", exportBackup);
-    document.getElementById("btnCopy").addEventListener("click", copyBackup);
-    document.getElementById("btnSnapshot").addEventListener("click", addSnapshot);
-    document.getElementById("btnAddDaily").addEventListener("click", addDaily);
-
-    document.getElementById("btnImportTrigger").addEventListener("click", () => {
-      document.getElementById("fileImport").click();
-    });
-
-    document.getElementById("fileImport").addEventListener("change", (e) => {
+    document.getElementById('btnSave').addEventListener('click', () => saveState('手动保存了本地数据', '✅ 已保存到本地'));
+    document.getElementById('btnExport').addEventListener('click', exportData);
+    document.getElementById('btnCopy').addEventListener('click', copyBackup);
+    document.getElementById('btnSnapshot').addEventListener('click', createSnapshot);
+    document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file) importBackup(file);
-      e.target.value = "";
+      if (file) importData(file);
+      e.target.value = '';
     });
-
-    document.getElementById("btnFullscreen").addEventListener("click", async () => {
+    document.getElementById('btnFullscreen').addEventListener('click', async () => {
       try {
         if (!document.fullscreenElement) {
           await document.documentElement.requestFullscreen();
-          showToast("⛶ 已进入全屏");
+          showToast('⛶ 已进入全屏');
         } else {
           await document.exitFullscreen();
-          showToast("↙ 已退出全屏");
+          showToast('↙ 已退出全屏');
         }
       } catch {
-        showToast("全屏切换失败");
+        showToast('全屏切换失败');
       }
     });
-
-    document.getElementById("openingCashInput").addEventListener("change", e => {
-      state.openingCash = n(e.target.value);
-      saveState("", "");
+    document.getElementById('openingCashInput').addEventListener('change', (e) => {
+      state.openingCash = num(e.target.value);
+      saveState('', '');
+      renderAll();
+    });
+    document.getElementById('safeLineInput').addEventListener('change', (e) => {
+      state.safeLine = num(e.target.value);
+      saveState('', '');
       renderAll();
     });
 
-    document.getElementById("safeLineInput").addEventListener("change", e => {
-      state.safeLine = n(e.target.value);
-      saveState("", "");
-      renderAll();
-    });
+    function renderAll() {
+      const d = getDerived();
+      renderMetricCards(d);
+      renderExpenseBreakdown(d);
+      renderFixedTrend(d);
+      renderMonthlySummary(d);
+      renderPressure(d);
+      renderReceipt(d);
+      renderDaily(d);
+      renderFixed();
+      renderLogs();
+      renderSnapshots();
+    }
 
     renderAll();
   </script>
