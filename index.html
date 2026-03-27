@@ -3,56 +3,996 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cashflow Dashboard</title>
+  <title>麦艾斯 · 现金流预测趋势模型</title>
   <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1d4ed8, #0891b2);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+    :root {
+      --bg1:#eef4ff;
+      --bg2:#f7fbff;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --brand:#2563eb;
+      --brand2:#0ea5e9;
+      --success:#16a34a;
+      --warn:#d97706;
+      --danger:#dc2626;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:22px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:var(--text); background:linear-gradient(180deg,var(--bg1),var(--bg2)); }
+    body { min-height:100vh; }
+    .wrap { max-width:1400px; margin:0 auto; padding:24px; }
+    .top-actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:flex-end; margin-bottom:18px; }
+    .btn {
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:16px;
+      padding:12px 16px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+    }
+    .btn.primary {
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:#fff;
+      border:none;
+    }
+    .hero {
+      background:linear-gradient(135deg,#0f172a 0%, #1d4ed8 55%, #0891b2 100%);
+      color:#fff;
+      border-radius:30px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+    .hero .eyebrow { font-size:14px; opacity:.85; }
+    .hero h1 { margin:10px 0 10px; font-size:36px; line-height:1.15; }
+    .hero p { margin:0; max-width:900px; color:rgba(255,255,255,.86); line-height:1.8; }
+    .hero .safe-line {
+      margin-top:18px;
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:600;
+    }
+    .grid-4 {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin:18px 0;
     }
     .card {
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 24px;
-      padding: 40px;
-      max-width: 700px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-      text-align: center;
+      background:var(--panel);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      position:relative;
     }
-    h1 {
-      font-size: 42px;
-      margin: 0 0 12px;
+    .card .label {
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
-    p {
-      font-size: 20px;
-      opacity: 0.95;
-      margin: 0;
-      line-height: 1.8;
+    .card .value {
+      font-size:26px;
+      font-weight:800;
+      line-height:1.2;
+      margin-bottom:8px;
     }
-    .ok {
-      margin-top: 24px;
-      display: inline-block;
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: rgba(34,197,94,0.18);
-      border: 1px solid rgba(34,197,94,0.4);
-      color: #bbf7d0;
-      font-weight: 600;
+    .card .sub {
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .help {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#e2e8f0;
+      color:#475569;
+      font-size:12px;
+      cursor:help;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .help:hover::after {
+      content:attr(data-tip);
+      position:absolute;
+      left:0;
+      top:24px;
+      width:300px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#0f172a;
+      color:#fff;
+      font-size:12px;
+      line-height:1.7;
+      z-index:20;
+      box-shadow:0 16px 40px rgba(2,6,23,.28);
+      white-space:normal;
+    }
+    .section-title {
+      font-size:18px;
+      font-weight:800;
+      margin:0 0 16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .grid-2 {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .mini-list {
+      display:grid;
+      gap:10px;
+    }
+    .mini-item {
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 16px;
+      background:#fff;
+    }
+    .mini-item .t1 { font-size:13px; color:var(--muted); }
+    .mini-item .t2 { margin-top:6px; font-weight:800; font-size:22px; }
+    .mini-item .t3 { margin-top:4px; color:var(--muted); font-size:13px; }
+    .info-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .badge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .badge.ok { background:#dcfce7; color:#166534; }
+    .badge.warn { background:#fef3c7; color:#92400e; }
+    .badge.danger { background:#fee2e2; color:#991b1b; }
+
+    .panel { background:#fff; border-radius:26px; box-shadow:var(--shadow); padding:20px; margin-bottom:18px; }
+    .toolbar-row { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; }
+    .toolbar-row .desc { color:var(--muted); font-size:13px; line-height:1.7; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:18px; }
+    table { width:100%; min-width:1200px; border-collapse:collapse; background:#fff; }
+    th, td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle; text-align:left; }
+    th { background:#f8fafc; color:#475569; font-size:13px; position:sticky; top:0; z-index:1; }
+    td { font-size:14px; }
+    input, select, textarea {
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      padding:9px 10px;
+      font-size:14px;
+      background:#fff;
+    }
+    .inline-actions {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tiny-btn {
+      border:1px solid var(--line);
+      background:#fff;
+      color:#334155;
+      border-radius:10px;
+      padding:6px 10px;
+      font-size:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .tiny-btn.del {
+      color:#b91c1c;
+      border-color:#fecaca;
+      background:#fff5f5;
+    }
+    .footer-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-top:18px;
+    }
+    .muted { color:var(--muted); }
+    .toast {
+      position:fixed;
+      right:24px;
+      top:24px;
+      background:rgba(15,23,42,.88);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:14px;
+      box-shadow:0 14px 30px rgba(2,6,23,.26);
+      font-size:14px;
+      z-index:999;
+      display:none;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-4, .info-grid { grid-template-columns:repeat(2,1fr); }
+      .grid-2, .footer-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width: 700px) {
+      .wrap { padding:14px; }
+      .hero h1 { font-size:28px; }
+      .grid-4, .info-grid { grid-template-columns:1fr; }
+      .card .value { font-size:22px; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>现金流老板驾驶舱</h1>
-    <p>如果你能看到这个页面，说明你的 GitHub Pages 部署已经成功了。</p>
-    <div class="ok">✅ 发布成功</div>
+  <div id="toast" class="toast"></div>
+
+  <div class="wrap">
+    <div class="top-actions">
+      <button class="btn" id="btnSave">保存本地数据</button>
+      <button class="btn" id="btnExport">导出备份</button>
+      <button class="btn" id="btnCopy">复制备份内容</button>
+      <button class="btn" id="btnImportTrigger">导入恢复</button>
+      <button class="btn" id="btnSnapshot">创建快照</button>
+      <button class="btn" id="btnFullscreen">全屏</button>
+      <input type="file" id="fileImport" accept="application/json" style="display:none;">
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">根据基础台账自动计算</div>
+      <h1>麦艾斯 · 现金流预测趋势模型</h1>
+      <p>支持每日现金流登记、月度固定支出录入、滚动累计结余、月度预警、备份恢复、版本快照和经营指标看板。数据默认保存到当前浏览器本地。</p>
+      <div class="safe-line" id="safeLineShow">月度预警安全线：¥ 100,000</div>
+    </div>
+
+    <div class="grid-4">
+      <div class="card">
+        <div class="label">当前可用余额 <span class="help" data-tip="计算逻辑：在每日现金流登记表中，筛选日期小于等于系统当天的记录，取最后一条记录的滚动累计结余作为当前可用余额。">?</span></div>
+        <div class="value" id="currentAvailable">¥ 0</div>
+        <div class="sub">取截至系统当天最近一条滚动累计结余</div>
+      </div>
+      <div class="card">
+        <div class="label">全年运营评级 <span class="help" data-tip="评级共 3 档：高风险、预警、健康。年末预测余额低于 0 为高风险；大于等于 0 且低于月度预警安全线为预警；大于等于安全线为健康。">?</span></div>
+        <div class="value" id="annualRating">全年健康</div>
+        <div class="sub">根据年末预测余额与安全线自动判断</div>
+      </div>
+      <div class="card">
+        <div class="label">当月滚动结余 <span class="help" data-tip="计算逻辑：按当前系统月份汇总该月收入、变动支出和固定支出后，形成当月月末滚动累计结余。">?</span></div>
+        <div class="value" id="currentMonthEnding">本月：¥ 0</div>
+        <div class="sub">由台账自动计算</div>
+      </div>
+      <div class="card">
+        <div class="label">年末预测余额 <span class="help" data-tip="计算逻辑：从起始资金开始，逐月叠加每月净现金流，得到 12 月月末滚动累计结余。">?</span></div>
+        <div class="value" id="yearEndBalance">¥ 0</div>
+        <div class="sub">全年滚动累计结余</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="section-title">资金压力月份 <span class="help" data-tip="按月度净现金流从低到高筛选压力最大的月份。净现金流为负且绝对值越大，表示资金压力越高。">?</span></div>
+        <div id="pressureMonths" class="mini-list"></div>
+      </div>
+      <div class="panel">
+        <div class="section-title">回款依赖月份分析 <span class="help" data-tip="收支比 = 当月收入 ÷ 当月总支出。数值越低，说明当月支出对回款覆盖依赖越强。">?</span></div>
+        <div id="receiptMonths" class="mini-list"></div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="card">
+        <div class="label">全年总收入 <span class="help" data-tip="统计口径：全年各月实际收入与预测收入合计。">?</span></div>
+        <div class="value" id="annualIncome">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="label">全年总支出 <span class="help" data-tip="统计口径：全年变动支出与固定支出合计。">?</span></div>
+        <div class="value" id="annualExpense">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="label">全年净现金流 <span class="help" data-tip="统计口径：全年总收入减全年总支出。">?</span></div>
+        <div class="value" id="annualNet">¥ 0</div>
+      </div>
+      <div class="card">
+        <div class="label">资金安全结论 <span class="help" data-tip="若年末预测余额大于等于月度预警安全线，则判断为全年支出盈余；否则提示需关注资金安全。">?</span></div>
+        <div class="value" id="annualConclusion">全年支出盈余</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">月度经营总表（自动汇总） <span class="help" data-tip="月度总收入来自每日现金流登记表中的实际收入与预测收入；月度总支出 = 每日变动支出 + 月度固定支出；月末滚动累计结余按月度净现金流逐月累计。">?</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>月份</th>
+              <th>月度总收入</th>
+              <th>其中变动支出</th>
+              <th>其中固定支出</th>
+              <th>月度总支出</th>
+              <th>月度净现金流</th>
+              <th>月末滚动累计结余</th>
+              <th>月度预警等级</th>
+            </tr>
+          </thead>
+          <tbody id="monthlySummaryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">基础数据录入区</div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card" style="padding:16px;">
+          <div class="label">起始资金</div>
+          <input id="openingCashInput" type="number" />
+        </div>
+        <div class="card" style="padding:16px;">
+          <div class="label">月度预警安全线</div>
+          <input id="safeLineInput" type="number" />
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <div>
+          <div class="section-title" style="margin-bottom:6px;">每日现金流登记表 <span class="help" data-tip="累计逻辑：第 1 行 = 起始资金 + 第 1 行当日净现金流；第 N 行 = 上一行滚动累计结余 + 第 N 行当日净现金流。预警逻辑：余额低于安全线触发预警，低于 0 触发高风险。">?</span></div>
+          <div class="desc">第 1 行 = 起始资金 + 第 1 行当日净现金流；第 N 行 = 上一行滚动累计结余 + 第 N 行当日净现金流。</div>
+        </div>
+        <button class="btn primary" id="btnAddDaily">新增一行</button>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:18px;">
+        <table>
+          <thead>
+            <tr>
+              <th>顺序</th>
+              <th>备注</th>
+              <th>调整</th>
+              <th>日期</th>
+              <th>月份</th>
+              <th>实际收入</th>
+              <th>预测收入</th>
+              <th>实际支出</th>
+              <th>预测支出</th>
+              <th>当日净现金流</th>
+              <th>滚动累计结余</th>
+              <th>当日预警状态</th>
+            </tr>
+          </thead>
+          <tbody id="dailyBody"></tbody>
+        </table>
+      </div>
+
+      <div class="toolbar-row">
+        <div>
+          <div class="section-title" style="margin-bottom:6px;">月度固定支出明细表 <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总和预警分析。">?</span></div>
+          <div class="desc">默认列出 1-12 月，供全年规划使用。</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>月份</th>
+              <th>员工工资</th>
+              <th>社保</th>
+              <th>公积金</th>
+              <th>活动经费</th>
+              <th>水电杂费</th>
+              <th>车位租赁</th>
+              <th>房租物业费</th>
+              <th>商务费用</th>
+              <th>个人借款</th>
+              <th>其他固定支出</th>
+              <th>月度固定支出合计</th>
+            </tr>
+          </thead>
+          <tbody id="fixedBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-grid">
+      <div class="panel">
+        <div class="section-title">操作日志（最近20条）</div>
+        <div id="logList" class="mini-list"></div>
+      </div>
+      <div class="panel">
+        <div class="section-title">版本快照（最近10次）</div>
+        <div id="snapshotList" class="mini-list"></div>
+      </div>
+    </div>
   </div>
+
+  <script>
+    const STORAGE_KEY = "cashflow_dashboard_static_v1";
+    const MONTHS = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+
+    const createDefaultState = () => ({
+      openingCash: 322731,
+      safeLine: 100000,
+      dailyCashflow: [
+        { id: 1, seq: 1, note: "示例数据", date: "2026-03-26", month: "3月", actualIncome: 0, forecastIncome: 0, actualExpense: 370.96, forecastExpense: 0 }
+      ],
+      fixedExpense: MONTHS.map(month => ({
+        month, salary: 0, social: 0, fund: 0, activity: 0, utilities: 0, parking: 0, rent: 0, business: 0, personalDebt: 0, other: 0
+      })),
+      actionLogs: [],
+      snapshots: []
+    });
+
+    let state = loadState();
+
+    function n(v) {
+      const x = Number(v);
+      return Number.isFinite(x) ? x : 0;
+    }
+
+    function money(v) {
+      return n(v).toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+    }
+
+    function monthOfDate(dateStr) {
+      if (!dateStr) return "1月";
+      const d = new Date(dateStr + "T00:00:00");
+      if (Number.isNaN(d.getTime())) return "1月";
+      return (d.getMonth() + 1) + "月";
+    }
+
+    function levelOf(balance, safeLine) {
+      if (balance < 0) return "高风险";
+      if (balance < safeLine) return "预警";
+      return "健康";
+    }
+
+    function badgeHtml(level) {
+      if (level === "高风险") return '<span class="badge danger">高风险</span>';
+      if (level === "预警") return '<span class="badge warn">预警</span>';
+      return '<span class="badge ok">健康</span>';
+    }
+
+    function sumFixed(item) {
+      return [
+        item.salary, item.social, item.fund, item.activity, item.utilities,
+        item.parking, item.rent, item.business, item.personalDebt, item.other
+      ].reduce((s, v) => s + n(v), 0);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createDefaultState();
+        const parsed = JSON.parse(raw);
+        const base = createDefaultState();
+        return {
+          ...base,
+          ...parsed,
+          fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : base.fixedExpense,
+          actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
+          snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
+        };
+      } catch {
+        return createDefaultState();
+      }
+    }
+
+    function saveState(logText, toastText) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (logText) pushLog(logText);
+      if (toastText) showToast(toastText);
+    }
+
+    function pushLog(action) {
+      state.actionLogs.unshift({
+        time: new Date().toLocaleString("zh-CN"),
+        action
+      });
+      state.actionLogs = state.actionLogs.slice(0, 20);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderLogs();
+    }
+
+    function showToast(text) {
+      const el = document.getElementById("toast");
+      el.textContent = text;
+      el.style.display = "block";
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        el.style.display = "none";
+      }, 2200);
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cashflow-dashboard-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      pushLog("导出了一份备份文件");
+      showToast("📁 已导出备份");
+    }
+
+    async function copyBackup() {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
+        pushLog("复制了备份内容");
+        showToast("📋 已复制备份内容");
+      } catch {
+        showToast("复制失败");
+      }
+    }
+
+    function addSnapshot() {
+      state.snapshots.unshift({
+        id: Date.now(),
+        time: new Date().toLocaleString("zh-CN"),
+        data: JSON.parse(JSON.stringify(state))
+      });
+      state.snapshots = state.snapshots.slice(0, 10);
+      saveState("创建了一次版本快照", "🧷 已创建版本快照");
+      renderAll();
+    }
+
+    function restoreSnapshot(id) {
+      const snap = state.snapshots.find(x => x.id === id);
+      if (!snap) return;
+      const keepLogs = state.actionLogs.slice();
+      const keepSnapshots = state.snapshots.slice();
+      state = JSON.parse(JSON.stringify(snap.data));
+      state.actionLogs = keepLogs;
+      state.snapshots = keepSnapshots;
+      saveState(`恢复到快照：${snap.time}`, "♻️ 已恢复到该快照");
+      renderAll();
+    }
+
+    function importBackup(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const base = createDefaultState();
+          state = {
+            ...base,
+            ...parsed,
+            fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12 ? parsed.fixedExpense : base.fixedExpense,
+            actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
+            snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
+          };
+          saveState("导入并恢复了一份备份", "♻️ 已导入恢复成功");
+          renderAll();
+        } catch {
+          showToast("导入失败，请检查备份文件");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function getDerived() {
+      const safeLine = n(state.safeLine);
+      const openingCash = n(state.openingCash);
+
+      const dailyRows = [...state.dailyCashflow]
+        .sort((a, b) => n(a.seq) - n(b.seq))
+        .map((row, idx, arr) => {
+          const dailyNet = n(row.actualIncome) + n(row.forecastIncome) - n(row.actualExpense) - n(row.forecastExpense);
+          let rollingBalance;
+          if (idx === 0) {
+            rollingBalance = openingCash + dailyNet;
+          } else {
+            const prev = arr[idx - 1]._rollingBalance;
+            rollingBalance = n(prev) + dailyNet;
+          }
+          row._rollingBalance = rollingBalance;
+          return {
+            ...row,
+            dailyNet,
+            rollingBalance,
+            dailyStatus: levelOf(rollingBalance, safeLine)
+          };
+        });
+
+      const today = new Date();
+      today.setHours(23,59,59,999);
+
+      const eligible = dailyRows.filter(r => {
+        if (!r.date) return false;
+        const d = new Date(r.date + "T00:00:00");
+        if (Number.isNaN(d.getTime())) return false;
+        d.setHours(23,59,59,999);
+        return d.getTime() <= today.getTime();
+      });
+
+      const currentAvailableBalance = eligible.length ? eligible[eligible.length - 1].rollingBalance : openingCash;
+      const currentMonthLabel = (new Date().getMonth() + 1) + "月";
+
+      const monthlySummary = [];
+      let rollingMonth = openingCash;
+
+      for (const month of MONTHS) {
+        const rows = dailyRows.filter(r => r.month === month);
+        const income = rows.reduce((s, r) => s + n(r.actualIncome) + n(r.forecastIncome), 0);
+        const variableExpense = rows.reduce((s, r) => s + n(r.actualExpense) + n(r.forecastExpense), 0);
+        const fixed = state.fixedExpense.find(x => x.month === month) || { month };
+        const fixedTotal = sumFixed(fixed);
+        const totalExpense = variableExpense + fixedTotal;
+        const net = income - totalExpense;
+        rollingMonth += net;
+        monthlySummary.push({
+          month,
+          income,
+          variableExpense,
+          fixedTotal,
+          totalExpense,
+          net,
+          endingCash: rollingMonth,
+          level: levelOf(rollingMonth, safeLine)
+        });
+      }
+
+      const currentMonthSummary = monthlySummary.find(x => x.month === currentMonthLabel) || monthlySummary[0];
+
+      const annualIncome = monthlySummary.reduce((s, x) => s + x.income, 0);
+      const annualExpense = monthlySummary.reduce((s, x) => s + x.totalExpense, 0);
+      const annualNet = annualIncome - annualExpense;
+      const yearEnd = monthlySummary[monthlySummary.length - 1].endingCash;
+      const annualRating = levelOf(yearEnd, safeLine);
+      const annualConclusion = yearEnd >= safeLine ? "全年支出盈余" : "需关注资金安全";
+
+      const pressureMonths = monthlySummary
+        .filter(x => x.net < 0)
+        .sort((a, b) => a.net - b.net)
+        .slice(0, 4);
+
+      const receiptMonths = monthlySummary
+        .filter(x => x.income > 0)
+        .map(x => ({
+          ...x,
+          ratio: x.totalExpense === 0 ? 0 : x.income / x.totalExpense
+        }))
+        .sort((a, b) => b.income - a.income)
+        .slice(0, 4);
+
+      return {
+        dailyRows,
+        monthlySummary,
+        currentAvailableBalance,
+        currentMonthSummary,
+        annualIncome,
+        annualExpense,
+        annualNet,
+        yearEnd,
+        annualRating,
+        annualConclusion,
+        pressureMonths,
+        receiptMonths
+      };
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderSummary();
+      renderDaily();
+      renderFixed();
+      renderMonthly();
+      renderLogs();
+      renderSnapshots();
+    }
+
+    function renderHeader() {
+      document.getElementById("safeLineShow").textContent = "月度预警安全线：¥ " + money(state.safeLine);
+      document.getElementById("openingCashInput").value = n(state.openingCash);
+      document.getElementById("safeLineInput").value = n(state.safeLine);
+    }
+
+    function renderSummary() {
+      const d = getDerived();
+      document.getElementById("currentAvailable").textContent = "¥ " + money(d.currentAvailableBalance);
+      document.getElementById("annualRating").textContent = "全年" + d.annualRating;
+      document.getElementById("currentMonthEnding").textContent = d.currentMonthSummary.month + "：¥ " + money(d.currentMonthSummary.endingCash);
+      document.getElementById("yearEndBalance").textContent = "¥ " + money(d.yearEnd);
+
+      document.getElementById("annualIncome").textContent = "¥ " + money(d.annualIncome);
+      document.getElementById("annualExpense").textContent = "¥ " + money(d.annualExpense);
+      document.getElementById("annualNet").textContent = "¥ " + money(d.annualNet);
+      document.getElementById("annualConclusion").textContent = d.annualConclusion;
+
+      const pressure = document.getElementById("pressureMonths");
+      pressure.innerHTML = "";
+      if (!d.pressureMonths.length) {
+        pressure.innerHTML = '<div class="mini-item"><div class="t1">暂无压力月</div><div class="t3">当前数据下没有净流出月份</div></div>';
+      } else {
+        d.pressureMonths.forEach(x => {
+          pressure.innerHTML += `
+            <div class="mini-item">
+              <div class="t1">${x.month}</div>
+              <div class="t2">净流出 ¥ ${money(Math.abs(x.net))}</div>
+              <div class="t3">月末余额 ¥ ${money(x.endingCash)}</div>
+            </div>
+          `;
+        });
+      }
+
+      const receipt = document.getElementById("receiptMonths");
+      receipt.innerHTML = "";
+      if (!d.receiptMonths.length) {
+        receipt.innerHTML = '<div class="mini-item"><div class="t1">暂无回款月份</div><div class="t3">当前数据下还没有收入月份</div></div>';
+      } else {
+        d.receiptMonths.forEach(x => {
+          receipt.innerHTML += `
+            <div class="mini-item">
+              <div class="t1">${x.month}</div>
+              <div class="t2">回款 ¥ ${money(x.income)}</div>
+              <div class="t3">收支比 ${x.ratio.toFixed(2)} ｜ 支出 ¥ ${money(x.totalExpense)}</div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function renderMonthly() {
+      const d = getDerived();
+      const body = document.getElementById("monthlySummaryBody");
+      body.innerHTML = "";
+      d.monthlySummary.forEach(x => {
+        body.innerHTML += `
+          <tr>
+            <td>${x.month}</td>
+            <td>¥ ${money(x.income)}</td>
+            <td>¥ ${money(x.variableExpense)}</td>
+            <td>¥ ${money(x.fixedTotal)}</td>
+            <td>¥ ${money(x.totalExpense)}</td>
+            <td>¥ ${money(x.net)}</td>
+            <td>¥ ${money(x.endingCash)}</td>
+            <td>${badgeHtml(x.level)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderDaily() {
+      const d = getDerived();
+      const body = document.getElementById("dailyBody");
+      body.innerHTML = "";
+
+      d.dailyRows.forEach(row => {
+        body.innerHTML += `
+          <tr>
+            <td>${row.seq}</td>
+            <td><input value="${escapeHtml(row.note || "")}" data-id="${row.id}" data-field="note" data-type="daily-text"></td>
+            <td>
+              <div class="inline-actions">
+                <button class="tiny-btn" onclick="moveDaily(${row.id}, 'up')">上移</button>
+                <button class="tiny-btn" onclick="moveDaily(${row.id}, 'down')">下移</button>
+                <button class="tiny-btn del" onclick="deleteDaily(${row.id})">删除</button>
+              </div>
+            </td>
+            <td><input type="date" value="${row.date || ""}" data-id="${row.id}" data-field="date" data-type="daily-date"></td>
+            <td>
+              <select data-id="${row.id}" data-field="month" data-type="daily-text">
+                ${MONTHS.map(m => `<option value="${m}" ${row.month === m ? "selected" : ""}>${m}</option>`).join("")}
+              </select>
+            </td>
+            <td><input type="number" value="${n(row.actualIncome)}" data-id="${row.id}" data-field="actualIncome" data-type="daily-num"></td>
+            <td><input type="number" value="${n(row.forecastIncome)}" data-id="${row.id}" data-field="forecastIncome" data-type="daily-num"></td>
+            <td><input type="number" value="${n(row.actualExpense)}" data-id="${row.id}" data-field="actualExpense" data-type="daily-num"></td>
+            <td><input type="number" value="${n(row.forecastExpense)}" data-id="${row.id}" data-field="forecastExpense" data-type="daily-num"></td>
+            <td>¥ ${money(row.dailyNet)}</td>
+            <td>¥ ${money(row.rollingBalance)}</td>
+            <td>${badgeHtml(row.dailyStatus)}</td>
+          </tr>
+        `;
+      });
+
+      body.querySelectorAll("input,select").forEach(el => {
+        el.addEventListener("change", onDailyChange);
+      });
+    }
+
+    function renderFixed() {
+      const body = document.getElementById("fixedBody");
+      body.innerHTML = "";
+      state.fixedExpense.forEach(row => {
+        body.innerHTML += `
+          <tr>
+            <td>${row.month}</td>
+            <td><input type="number" value="${n(row.salary)}" data-month="${row.month}" data-field="salary" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.social)}" data-month="${row.month}" data-field="social" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.fund)}" data-month="${row.month}" data-field="fund" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.activity)}" data-month="${row.month}" data-field="activity" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.utilities)}" data-month="${row.month}" data-field="utilities" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.parking)}" data-month="${row.month}" data-field="parking" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.rent)}" data-month="${row.month}" data-field="rent" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.business)}" data-month="${row.month}" data-field="business" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.personalDebt)}" data-month="${row.month}" data-field="personalDebt" class="fixed-num"></td>
+            <td><input type="number" value="${n(row.other)}" data-month="${row.month}" data-field="other" class="fixed-num"></td>
+            <td>¥ ${money(sumFixed(row))}</td>
+          </tr>
+        `;
+      });
+
+      body.querySelectorAll(".fixed-num").forEach(el => {
+        el.addEventListener("change", onFixedChange);
+      });
+    }
+
+    function renderLogs() {
+      const box = document.getElementById("logList");
+      box.innerHTML = "";
+      if (!state.actionLogs.length) {
+        box.innerHTML = '<div class="mini-item"><div class="t1">暂无操作记录</div></div>';
+        return;
+      }
+      state.actionLogs.forEach(log => {
+        box.innerHTML += `
+          <div class="mini-item">
+            <div class="t2" style="font-size:16px;">${escapeHtml(log.action)}</div>
+            <div class="t3">${escapeHtml(log.time)}</div>
+          </div>
+        `;
+      });
+    }
+
+    function renderSnapshots() {
+      const box = document.getElementById("snapshotList");
+      box.innerHTML = "";
+      if (!state.snapshots.length) {
+        box.innerHTML = '<div class="mini-item"><div class="t1">暂无版本快照</div></div>';
+        return;
+      }
+      state.snapshots.forEach(snap => {
+        box.innerHTML += `
+          <div class="mini-item">
+            <div class="t2" style="font-size:16px;">版本快照</div>
+            <div class="t3">${escapeHtml(snap.time)}</div>
+            <div style="margin-top:10px;">
+              <button class="tiny-btn" onclick="restoreSnapshot(${snap.id})">恢复</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function onDailyChange(e) {
+      const id = Number(e.target.dataset.id);
+      const field = e.target.dataset.field;
+      const type = e.target.dataset.type;
+      const row = state.dailyCashflow.find(x => x.id === id);
+      if (!row) return;
+
+      if (type === "daily-num") row[field] = n(e.target.value);
+      else row[field] = e.target.value;
+
+      if (field === "date") {
+        row.month = monthOfDate(row.date);
+      }
+      saveState("", "");
+      renderAll();
+    }
+
+    function onFixedChange(e) {
+      const month = e.target.dataset.month;
+      const field = e.target.dataset.field;
+      const row = state.fixedExpense.find(x => x.month === month);
+      if (!row) return;
+      row[field] = n(e.target.value);
+      saveState("", "");
+      renderAll();
+    }
+
+    function addDaily() {
+      const nextId = Date.now();
+      const seq = state.dailyCashflow.length + 1;
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const date = `${yyyy}-${mm}-${dd}`;
+      state.dailyCashflow.push({
+        id: nextId,
+        seq,
+        note: "",
+        date,
+        month: monthOfDate(date),
+        actualIncome: 0,
+        forecastIncome: 0,
+        actualExpense: 0,
+        forecastExpense: 0
+      });
+      saveState("新增了一行每日现金流记录", "✅ 已新增一行");
+      renderAll();
+    }
+
+    function deleteDaily(id) {
+      state.dailyCashflow = state.dailyCashflow.filter(x => x.id !== id).map((x, i) => ({ ...x, seq: i + 1 }));
+      saveState("删除了一行每日现金流记录", "🗑️ 已删除一行");
+      renderAll();
+    }
+
+    function moveDaily(id, dir) {
+      const list = [...state.dailyCashflow].sort((a,b)=>a.seq-b.seq);
+      const idx = list.findIndex(x => x.id === id);
+      if (idx < 0) return;
+      const target = dir === "up" ? idx - 1 : idx + 1;
+      if (target < 0 || target >= list.length) return;
+      [list[idx], list[target]] = [list[target], list[idx]];
+      state.dailyCashflow = list.map((x, i) => ({ ...x, seq: i + 1 }));
+      saveState(dir === "up" ? "上移了一行记录" : "下移了一行记录", "↕️ 顺序已调整");
+      renderAll();
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    document.getElementById("btnSave").addEventListener("click", () => {
+      saveState("手动保存了本地数据", "✅ 已保存到本地");
+    });
+
+    document.getElementById("btnExport").addEventListener("click", exportBackup);
+    document.getElementById("btnCopy").addEventListener("click", copyBackup);
+    document.getElementById("btnSnapshot").addEventListener("click", addSnapshot);
+    document.getElementById("btnAddDaily").addEventListener("click", addDaily);
+
+    document.getElementById("btnImportTrigger").addEventListener("click", () => {
+      document.getElementById("fileImport").click();
+    });
+
+    document.getElementById("fileImport").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importBackup(file);
+      e.target.value = "";
+    });
+
+    document.getElementById("btnFullscreen").addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+          showToast("⛶ 已进入全屏");
+        } else {
+          await document.exitFullscreen();
+          showToast("↙ 已退出全屏");
+        }
+      } catch {
+        showToast("全屏切换失败");
+      }
+    });
+
+    document.getElementById("openingCashInput").addEventListener("change", e => {
+      state.openingCash = n(e.target.value);
+      saveState("", "");
+      renderAll();
+    });
+
+    document.getElementById("safeLineInput").addEventListener("change", e => {
+      state.safeLine = n(e.target.value);
+      saveState("", "");
+      renderAll();
+    });
+
+    renderAll();
+  </script>
 </body>
 </html>
