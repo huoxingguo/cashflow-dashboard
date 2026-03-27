@@ -60,9 +60,8 @@
       backdrop-filter: blur(8px);
       white-space: nowrap;
     }
-    .grid-4, .grid-2, .grid-3 { display:grid; gap:16px; margin-top:18px; }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4, .grid-2, .info-grid { display:grid; gap:16px; margin-top:18px; }
+    .grid-4, .info-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .card {
       background: var(--card);
@@ -70,8 +69,8 @@
       box-shadow: var(--shadow);
       padding: 22px;
     }
-    .card h2, .card h3 { margin:0; }
     .title-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+    .card h2, .card h3 { margin:0; }
     .help {
       display:inline-flex; align-items:center; justify-content:center;
       width:18px; height:18px; border-radius:999px; background:#e2e8f0;
@@ -96,20 +95,15 @@
     .tone-amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
     .tone-purple { background: linear-gradient(135deg, #f5f3ff, #fae8ff); }
     .mini-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-bottom:14px; }
-    .mini {
-      background:#f8fafc; border-radius:18px; padding:14px;
-    }
+    .mini { background:#f8fafc; border-radius:18px; padding:14px; }
     .mini .lab { font-size:13px; color:var(--muted); }
     .mini .val { margin-top:4px; font-size:20px; font-weight:700; }
     .chart-box { height:340px; }
-    .h-420 { height:420px; }
     .svg-chart { width:100%; height:100%; display:block; }
     .legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    .legend span {
-      font-size:12px; color:var(--muted); border-radius:999px; background:#f1f5f9; padding:6px 10px;
-    }
-    .rank-list { display:grid; gap:14px; }
-    .rank-item { border:1px solid var(--line); border-radius:22px; padding:18px; }
+    .legend span { font-size:12px; color:var(--muted); border-radius:999px; background:#f1f5f9; padding:6px 10px; }
+    .rank-list, .stack { display:grid; gap:14px; }
+    .rank-item, .log-item { border:1px solid var(--line); border-radius:22px; padding:18px; }
     .rank-top { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
     .muted { color:var(--muted); }
     .big { font-size:18px; font-weight:700; }
@@ -117,13 +111,12 @@
     .ok { background:#dcfce7; color:#166534; }
     .warn { background:#fef3c7; color:#92400e; }
     .danger { background:#fee2e2; color:#991b1b; }
-    .info-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-top:18px; }
     .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:20px; }
     table { width:100%; min-width:1280px; border-collapse:collapse; background:#fff; }
     th, td { padding:11px 12px; border-bottom:1px solid var(--line); text-align:left; font-size:14px; vertical-align:middle; }
     th { background:#f8fafc; color:#475569; font-size:13px; position:sticky; top:0; z-index:2; }
     tbody tr:last-child td { border-bottom:none; }
-    .input, input[type="number"], input[type="date"], input[type="text"], select {
+    input[type="number"], input[type="date"], input[type="text"], select {
       width:100%; border:1px solid #cbd5e1; border-radius:12px; padding:9px 10px; font-size:14px; background:#fff;
     }
     .soft { background:#f8fafc; border:1px solid #f1f5f9; border-radius:20px; padding:16px; }
@@ -133,17 +126,23 @@
     .tiny { border:1px solid var(--line); background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; cursor:pointer; }
     .tiny.del { border-color:#fecaca; color:#b91c1c; background:#fff5f5; }
     .two-col-bottom { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; margin-top:18px; }
-    .stack { display:grid; gap:10px; }
-    .log-item { border:1px solid var(--line); border-radius:16px; padding:12px 14px; }
     .toast {
       display:none; position:fixed; right:22px; top:22px; z-index:999;
       background:rgba(15,23,42,.9); color:#fff; padding:12px 16px; border-radius:14px; box-shadow: 0 16px 36px rgba(2,6,23,.28);
       font-size:14px;
     }
+    .expense-stack { display:grid; gap:18px; margin-top:8px; }
+    .expense-chart-wrap { min-height:360px; }
+    .top3-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .top3-card { border:1px solid var(--line); border-radius:22px; padding:18px; background:#fff; }
+    .top3-rank { font-size:13px; color:var(--muted); margin-bottom:8px; }
+    .top3-name { font-size:18px; font-weight:800; margin-bottom:10px; }
+    .top3-value { font-size:22px; font-weight:800; line-height:1.2; }
+    .top3-percent { margin-top:6px; color:var(--muted); font-size:13px; }
+    .top3-empty { border:1px dashed var(--line); border-radius:22px; padding:18px; color:var(--muted); background:#f8fafc; font-size:14px; line-height:1.7; }
     @media (max-width: 1280px) {
       .grid-4, .info-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
-      .grid-2, .two-col-bottom { grid-template-columns:1fr; }
-      .grid-3 { grid-template-columns:1fr; }
+      .grid-2, .two-col-bottom, .top3-grid { grid-template-columns:1fr; }
     }
     @media (max-width: 720px) {
       .page { padding:14px; }
@@ -153,76 +152,6 @@
       .hero h1 { font-size:28px; }
       .actions { justify-content:flex-start; }
     }
-
-
-
-.expense-stack {
-  display: grid;
-  gap: 18px;
-  margin-top: 8px;
-}
-
-.expense-chart-wrap {
-  min-height: 360px;
-}
-
-.top3-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.top3-card {
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 18px;
-  background: #fff;
-}
-
-.top3-rank {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.top3-name {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.top3-value {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.top3-percent {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.top3-empty {
-  border: 1px dashed var(--line);
-  border-radius: 22px;
-  padding: 18px;
-  color: var(--muted);
-  background: #f8fafc;
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-@media (max-width: 1100px) {
-  .top3-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-
-
-
   </style>
 </head>
 <body>
@@ -292,29 +221,27 @@
       </div>
     </section>
 
-  <section class="grid-2">
-  <div class="card">
-    <div class="title-row">
-      <h2>支出结构分布</h2>
-      <span class="help" data-tip="按照月度固定支出明细表汇总各支出类别金额，并按占比从高到低展示。当前仅显示有效非零 TOP3 支出项。">?</span>
-    </div>
-
-    <div class="expense-stack">
-      <div class="expense-chart-wrap">
-        <svg id="expenseBreakdownSvg" class="svg-chart" viewBox="0 0 980 360"></svg>
+    <section class="grid-2">
+      <div class="card">
+        <div class="title-row">
+          <h2>支出结构分布</h2>
+          <span class="help" data-tip="按照月度固定支出明细表汇总各支出类别金额，并按占比从高到低展示。当前仅显示有效非零 TOP3 支出项。">?</span>
+        </div>
+        <div class="expense-stack">
+          <div class="expense-chart-wrap">
+            <svg id="expenseBreakdownSvg" class="svg-chart" viewBox="0 0 980 360"></svg>
+          </div>
+          <div id="expenseTopList" class="top3-grid"></div>
+        </div>
       </div>
-      <div id="expenseTopList" class="top3-grid"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title-row"><h2>月度固定支出趋势预测</h2><span class="help" data-tip="红线表示每月固定支出合计，蓝线表示每月其他固定支出。用于观察固定成本高峰月份。">?</span></div>
-    <div class="chart-box">
-      <svg id="fixedTrendSvg" class="svg-chart" viewBox="0 0 720 340"></svg>
-    </div>
-    <div class="legend"><span>固定支出合计</span><span>其他固定支出</span></div>
-  </div>
-</section>
+      <div class="card">
+        <div class="title-row"><h2>月度固定支出趋势预测</h2><span class="help" data-tip="红线表示每月固定支出合计，蓝线表示每月其他固定支出。用于观察固定成本高峰月份。">?</span></div>
+        <div class="chart-box">
+          <svg id="fixedTrendSvg" class="svg-chart" viewBox="0 0 720 340"></svg>
+        </div>
+        <div class="legend"><span>固定支出合计</span><span>其他固定支出</span></div>
+      </div>
+    </section>
 
     <section class="grid-2">
       <div class="card">
@@ -369,7 +296,6 @@
 
     <section class="card" style="margin-top:18px;">
       <div class="title-row"><h2>基础数据录入区</h2></div>
-
       <div class="grid-2" style="margin-top:0; margin-bottom:16px;">
         <div class="soft">
           <div class="metric-label">起始资金</div>
@@ -634,9 +560,7 @@
       });
       const expenseBreakdown = Object.entries(buckets).map(([name, value]) => ({ name, value, percent: totalFixedExpense ? ((value / totalFixedExpense) * 100).toFixed(1) : "0.0" })).sort((a, b) => b.value - a.value);
       const fixedTrend = state.fixedExpense.map((r) => ({ month: r.month, total: sumFixed(r), other: num(r.other) }));
-      const maxBalance = Math.max(0, ...monthlySummary.map((m) => m.endingCash));
-      const minBalance = Math.min(0, ...monthlySummary.map((m) => m.endingCash));
-      return { dailyRows, monthlySummary, annual, currentAvailableBalance, currentMonth, pressureMonths, receiptDependencyMonths, expenseBreakdown, fixedTrend, maxBalance, minBalance };
+      return { dailyRows, monthlySummary, annual, currentAvailableBalance, currentMonth, pressureMonths, receiptDependencyMonths, expenseBreakdown, fixedTrend };
     }
 
     function renderMetricCards(d) {
@@ -653,78 +577,47 @@
       document.getElementById("safeLineInput").value = num(state.safeLine);
     }
 
-    
+    function renderExpenseBreakdown(d) {
+      const svg = document.getElementById("expenseBreakdownSvg");
+      const list = document.getElementById("expenseTopList");
+      const validItems = d.expenseBreakdown.filter(item => Number(item.value) > 0).slice(0, 3);
 
+      if (!validItems.length) {
+        svg.innerHTML = `<rect x="0" y="0" width="980" height="360" fill="transparent"></rect><text x="490" y="180" text-anchor="middle" font-size="20" fill="#94a3b8">暂无有效支出数据</text>`;
+        list.innerHTML = `<div class="top3-empty">当前还没有可展示的非零固定支出项。</div>`;
+        return;
+      }
 
-function renderExpenseBreakdown(d) {
-  const svg = document.getElementById("expenseBreakdownSvg");
-  const list = document.getElementById("expenseTopList");
-
-  const validItems = d.expenseBreakdown
-    .filter(item => Number(item.value) > 0)
-    .slice(0, 3);
-
-  if (!validItems.length) {
-    svg.innerHTML = `
-      <rect x="0" y="0" width="980" height="360" fill="transparent"></rect>
-      <text x="490" y="180" text-anchor="middle" font-size="20" fill="#94a3b8">暂无有效支出数据</text>
-    `;
-    list.innerHTML = `<div class="top3-empty">当前还没有可展示的非零固定支出项。</div>`;
-    return;
-  }
-
-  const width = 980;
-  const height = 360;
-  const left = 140;
-  const right = 40;
-  const top = 30;
-  const bottom = 42;
-  const plotW = width - left - right;
-  const plotH = height - top - bottom;
-  const max = Math.max(...validItems.map(x => Number(x.value)), 1);
-  const rowGap = 34;
-  const barHeight = 28;
-
-  let grid = "";
-  for (let i = 0; i <= 4; i++) {
-    const x = left + (plotW / 4) * i;
-    const tickValue = Math.round((max / 4) * i);
-    grid += `<line x1="${x}" y1="${top}" x2="${x}" y2="${height - bottom}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
-    grid += `<text x="${x}" y="${height - 12}" text-anchor="middle" font-size="12" fill="#64748b">${tickValue}</text>`;
-  }
-
-  const colors = ["#ef4444", "#f59e0b", "#8b5cf6"];
-  let bars = "";
-
-  validItems.forEach((item, i) => {
-    const y = top + i * (barHeight + rowGap) + 38;
-    const barW = (Number(item.value) / max) * plotW;
-    const color = colors[i % colors.length];
-
-    bars += `<text x="${left - 14}" y="${y + 19}" text-anchor="end" font-size="15" fill="#334155">${item.name}</text>`;
-    bars += `<rect x="${left}" y="${y}" width="${barW}" height="${barHeight}" rx="10" fill="${color}" />`;
-    bars += `<text x="${left + barW + 10}" y="${y + 19}" font-size="13" fill="#64748b">¥ ${money(item.value)}</text>`;
-  });
-
-  svg.innerHTML = `
-    <rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
-    ${grid}
-    ${bars}
-  `;
-
-  list.innerHTML = validItems.map((item, i) => `
-    <div class="top3-card">
-      <div class="top3-rank">TOP ${i + 1}</div>
-      <div class="top3-name">${item.name}</div>
-      <div class="top3-value">¥ ${money(item.value)}</div>
-      <div class="top3-percent">占比 ${item.percent}%</div>
-    </div>
-  `).join("");
-}
-
-
-
-
+      const width = 980, height = 360, left = 140, right = 40, top = 30, bottom = 42;
+      const plotW = width - left - right;
+      const max = Math.max(...validItems.map(x => Number(x.value)), 1);
+      const rowGap = 34, barHeight = 28;
+      let grid = "";
+      for (let i = 0; i <= 4; i++) {
+        const x = left + (plotW / 4) * i;
+        const tickValue = Math.round((max / 4) * i);
+        grid += `<line x1="${x}" y1="${top}" x2="${x}" y2="${height - bottom}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
+        grid += `<text x="${x}" y="${height - 12}" text-anchor="middle" font-size="12" fill="#64748b">${tickValue}</text>`;
+      }
+      const colors = ["#ef4444", "#f59e0b", "#8b5cf6"];
+      let bars = "";
+      validItems.forEach((item, i) => {
+        const y = top + i * (barHeight + rowGap) + 38;
+        const barW = (Number(item.value) / max) * plotW;
+        const color = colors[i % colors.length];
+        bars += `<text x="${left - 14}" y="${y + 19}" text-anchor="end" font-size="15" fill="#334155">${item.name}</text>`;
+        bars += `<rect x="${left}" y="${y}" width="${barW}" height="${barHeight}" rx="10" fill="${color}" />`;
+        bars += `<text x="${left + barW + 10}" y="${y + 19}" font-size="13" fill="#64748b">¥ ${money(item.value)}</text>`;
+      });
+      svg.innerHTML = `<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>${grid}${bars}`;
+      list.innerHTML = validItems.map((item, i) => `
+        <div class="top3-card">
+          <div class="top3-rank">TOP ${i + 1}</div>
+          <div class="top3-name">${item.name}</div>
+          <div class="top3-value">¥ ${money(item.value)}</div>
+          <div class="top3-percent">占比 ${item.percent}%</div>
+        </div>`).join("");
+    }
 
     function renderFixedTrend(d) {
       const svg = document.getElementById("fixedTrendSvg");
@@ -770,8 +663,7 @@ function renderExpenseBreakdown(d) {
           <td>¥ ${money(row.net)}</td>
           <td>¥ ${money(row.endingCash)}</td>
           <td>${badge(row.level)}</td>
-        </tr>
-      `).join("");
+        </tr>`).join("");
     }
 
     function renderPressure(d) {
@@ -792,6 +684,13 @@ function renderExpenseBreakdown(d) {
           <div class="big" style="margin-top:4px;">回款 ¥ ${money(it.income)}</div>
           <div class="muted" style="margin-top:6px;">收支比 ${it.ratio.toFixed(2)} ｜ 支出 ¥ ${money(it.expense)}</div>
         </div>`).join("") : `<div class="log-item muted">暂无回款月份</div>`;
+    }
+
+    function monthSelectHtml(id, current) {
+      return `<select onchange="updateDailyText(${id}, 'month', this.value)">${MONTHS.map((m) => `<option value="${m}" ${m === current ? 'selected' : ''}>${m}</option>`).join('')}</select>`;
+    }
+    function escapeHtml(str) {
+      return String(str || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
     }
 
     function renderDaily(d) {
@@ -816,8 +715,7 @@ function renderExpenseBreakdown(d) {
           <td>¥ ${money(r.dailyNet)}</td>
           <td>¥ ${money(r.rollingBalance)}</td>
           <td>${badge(r.dailyStatus)}</td>
-        </tr>
-      `).join("");
+        </tr>`).join("");
     }
 
     function renderFixed() {
@@ -836,8 +734,7 @@ function renderExpenseBreakdown(d) {
           <td><input type="number" value="${num(r.personalDebt)}" onchange="updateFixed('${r.month}','personalDebt',this.value)"></td>
           <td><input type="number" value="${num(r.other)}" onchange="updateFixed('${r.month}','other',this.value)"></td>
           <td><strong>¥ ${money(sumFixed(r))}</strong></td>
-        </tr>
-      `).join("");
+        </tr>`).join("");
     }
 
     function renderLogs() {
@@ -859,18 +756,6 @@ function renderExpenseBreakdown(d) {
           </div>
           <button class="tiny" onclick="restoreSnapshot(${snap.id})">恢复</button>
         </div>`).join("") : `<div class="log-item muted">暂无版本快照</div>`;
-    }
-
-    function monthSelectHtml(id, current) {
-      return `<select onchange="updateDailyText(${id}, 'month', this.value)">${MONTHS.map((m) => `<option value="${m}" ${m === current ? 'selected' : ''}>${m}</option>`).join('')}</select>`;
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
     }
 
     function updateDailyText(id, field, value) {
@@ -959,6 +844,9 @@ function renderExpenseBreakdown(d) {
       renderAll();
     });
 
+    // 关键修复：绑定新增按钮
+    document.getElementById('btnAddDaily').addEventListener('click', addDailyRow);
+
     function renderAll() {
       const d = getDerived();
       renderMetricCards(d);
@@ -973,6 +861,7 @@ function renderExpenseBreakdown(d) {
       renderSnapshots();
     }
 
+    // 初始化
     renderAll();
   </script>
 </body>
