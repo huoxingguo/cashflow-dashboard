@@ -614,70 +614,82 @@
         </div>
       </div>
 
+
+
+
+
+
+
       <div class="toolbar">
-        <div>
-          <div class="title-row" style="margin-bottom:4px;">
-            <h3>每日现金流登记表</h3>
-            <span class="help" data-tip="累计逻辑：第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。预警逻辑：余额低于安全线触发预警，低于0触发高风险。">?</span>
-          </div>
-          <p>第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。</p>
-        </div>
-        <button class="btn primary" id="btnAddDaily">新增一行</button>
-      </div>
+  <div>
+    <div class="title-row" style="margin-bottom:4px;">
+      <h3>月度固定支出明细表</h3>
+      <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总、支出结构分析和趋势预测。">?</span>
+    </div>
+    <p>默认列出 1-12 月，供全年规划使用。</p>
+  </div>
+</div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>顺序</th>
-              <th>备注</th>
-              <th>调整</th>
-              <th>日期</th>
-              <th>月份</th>
-              <th>实际收入</th>
-              <th>预测收入</th>
-              <th>实际支出</th>
-              <th>预测支出</th>
-              <th>当日净现金流</th>
-              <th>滚动累计结余</th>
-              <th>当日预警状态</th>
-            </tr>
-          </thead>
-          <tbody id="dailyBody"></tbody>
-        </table>
-      </div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>月份</th>
+        <th>员工工资</th>
+        <th>社保</th>
+        <th>公积金</th>
+        <th>活动经费</th>
+        <th>水电杂费</th>
+        <th>车位租赁</th>
+        <th>房租物业费</th>
+        <th>商务费用</th>
+        <th>个人借款</th>
+        <th>其他固定支出</th>
+        <th>月度固定支出合计</th>
+      </tr>
+    </thead>
+    <tbody id="fixedBody"></tbody>
+  </table>
+</div>
 
-      <div class="toolbar" style="margin-top:18px;">
-        <div>
-          <div class="title-row" style="margin-bottom:4px;">
-            <h3>月度固定支出明细表</h3>
-            <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总、支出结构分析和趋势预测。">?</span>
-          </div>
-          <p>默认列出 1-12 月，供全年规划使用。</p>
-        </div>
-      </div>
+<div class="toolbar" style="margin-top:18px;">
+  <div>
+    <div class="title-row" style="margin-bottom:4px;">
+      <h3>每日现金流登记表</h3>
+      <span class="help" data-tip="累计逻辑：第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。预警逻辑：余额低于安全线触发预警，低于0触发高风险。">?</span>
+    </div>
+    <p>第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。</p>
+  </div>
+  <button class="btn primary" id="btnAddDaily">新增一行</button>
+</div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>月份</th>
-              <th>员工工资</th>
-              <th>社保</th>
-              <th>公积金</th>
-              <th>活动经费</th>
-              <th>水电杂费</th>
-              <th>车位租赁</th>
-              <th>房租物业费</th>
-              <th>商务费用</th>
-              <th>个人借款</th>
-              <th>其他固定支出</th>
-              <th>月度固定支出合计</th>
-            </tr>
-          </thead>
-          <tbody id="fixedBody"></tbody>
-        </table>
-      </div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>顺序</th>
+        <th>备注</th>
+        <th>调整</th>
+        <th>日期</th>
+        <th>月份</th>
+        <th>实际收入</th>
+        <th>预测收入</th>
+        <th>实际支出</th>
+        <th>预测支出</th>
+        <th>当日净现金流</th>
+        <th>滚动累计结余</th>
+        <th>当日预警状态</th>
+      </tr>
+    </thead>
+    <tbody id="dailyBody"></tbody>
+  </table>
+</div>
+
+
+
+
+
+
     </section>
 
     <section class="two-col-bottom">
