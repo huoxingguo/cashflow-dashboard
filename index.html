@@ -285,6 +285,23 @@
 
     tbody tr:last-child td { border-bottom: none; }
 
+
+
+
+
+
+.daily-row-past td {
+  background: #dfefff !important;
+}
+
+.daily-row-past:hover td {
+  background: #cfe4ff !important;
+}
+
+
+
+
+
     input[type="number"], input[type="date"], input[type="text"], select {
       width: 100%;
       border: 1px solid #cbd5e1;
@@ -732,8 +749,18 @@
       snapshots: []
     };
 
-    let state = loadState();
-    let toastTimer = null;
+
+
+
+
+   let state = loadState();
+let toastTimer = null;
+let activeDailyRowId = null;
+
+
+
+
+
 
     function num(v) { return Number.isFinite(Number(v)) ? Number(v) : 0; }
 
@@ -1263,31 +1290,104 @@ function importData(file) {
         .replaceAll('"', "&quot;");
     }
 
+
+
+function setActiveDailyRow(id) {
+  activeDailyRowId = id;
+}
+
+
+
+
     function renderDaily(d) {
-      const body = document.getElementById("dailyBody");
-      body.innerHTML = d.dailyRows.map((r) => `
-        <tr>
-          <td>${r.seq}</td>
-          <td><input type="text" value="${escapeHtml(r.note || "")}" onchange="updateDailyText(${r.id}, 'note', this.value)"></td>
-          <td>
-            <div class="row-actions">
-              <button class="tiny" onclick="moveDailyRow(${r.id}, 'up')">上移</button>
-              <button class="tiny" onclick="moveDailyRow(${r.id}, 'down')">下移</button>
-              <button class="tiny del" onclick="deleteDailyRow(${r.id})">删除</button>
-            </div>
-          </td>
-          <td><input type="date" value="${(r.date || "").replace(/\//g, "-")}" onchange="updateDailyDate(${r.id}, this.value)"></td>
-          <td>${monthSelectHtml(r.id, r.month)}</td>
-          <td><input type="number" value="${num(r.actualIncome)}" onchange="updateDailyNum(${r.id}, 'actualIncome', this.value)"></td>
-          <td><input type="number" value="${num(r.forecastIncome)}" onchange="updateDailyNum(${r.id}, 'forecastIncome', this.value)"></td>
-          <td><input type="number" value="${num(r.actualExpense)}" onchange="updateDailyNum(${r.id}, 'actualExpense', this.value)"></td>
-          <td><input type="number" value="${num(r.forecastExpense)}" onchange="updateDailyNum(${r.id}, 'forecastExpense', this.value)"></td>
-          <td>¥ ${money(r.dailyNet)}</td>
-          <td>¥ ${money(r.rollingBalance)}</td>
-          <td>${badge(r.dailyStatus)}</td>
-        </tr>
-      `).join("");
-    }
+  const body = document.getElementById("dailyBody");
+
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  body.innerHTML = d.dailyRows.map((r) => {
+    const rowDate = parseDate(r.date);
+    const isPastOrToday = rowDate && rowDate.getTime() <= today.getTime();
+    const rowClass = isPastOrToday ? "daily-row-past" : "";
+
+    return `
+      <tr class="${rowClass}">
+        <td>${r.seq}</td>
+        <td>
+          <input
+            type="text"
+            value="${escapeHtml(r.note || "")}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyText(${r.id}, 'note', this.value)"
+          >
+        </td>
+        <td>
+          <div class="row-actions">
+            <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'up')">上移</button>
+            <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'down')">下移</button>
+            <button class="tiny del" onclick="setActiveDailyRow(${r.id}); deleteDailyRow(${r.id})">删除</button>
+          </div>
+        </td>
+        <td>
+          <input
+            type="date"
+            value="${(r.date || "").replace(/\//g, "-")}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyDate(${r.id}, this.value)"
+          >
+        </td>
+        <td>
+          <select
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyText(${r.id}, 'month', this.value)"
+          >
+            ${MONTHS.map((m) => `<option value="${m}" ${m === r.month ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <input
+            type="number"
+            value="${num(r.actualIncome)}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyNum(${r.id}, 'actualIncome', this.value)"
+          >
+        </td>
+        <td>
+          <input
+            type="number"
+            value="${num(r.forecastIncome)}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyNum(${r.id}, 'forecastIncome', this.value)"
+          >
+        </td>
+        <td>
+          <input
+            type="number"
+            value="${num(r.actualExpense)}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyNum(${r.id}, 'actualExpense', this.value)"
+          >
+        </td>
+        <td>
+          <input
+            type="number"
+            value="${num(r.forecastExpense)}"
+            onfocus="setActiveDailyRow(${r.id})"
+            onchange="updateDailyNum(${r.id}, 'forecastExpense', this.value)"
+          >
+        </td>
+        <td>¥ ${money(r.dailyNet)}</td>
+        <td>¥ ${money(r.rollingBalance)}</td>
+        <td>${badge(r.dailyStatus)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+
+
+
+
 
     function renderFixed() {
       const body = document.getElementById("fixedBody");
@@ -1362,21 +1462,53 @@ function importData(file) {
       renderAll();
     }
 
+
+
+
+
+
     function addDailyRow() {
-      state.dailyCashflow.push({
-        id: Date.now(),
-        seq: state.dailyCashflow.length + 1,
-        date: "",
-        month: CURRENT_MONTH,
-        actualIncome: 0,
-        forecastIncome: 0,
-        actualExpense: 0,
-        forecastExpense: 0,
-        note: ""
-      });
-      saveState("新增了一行每日现金流记录", "✅ 已新增一行");
-      renderAll();
+  const newRow = {
+    id: Date.now(),
+    seq: state.dailyCashflow.length + 1,
+    date: "",
+    month: CURRENT_MONTH,
+    actualIncome: 0,
+    forecastIncome: 0,
+    actualExpense: 0,
+    forecastExpense: 0,
+    note: ""
+  };
+
+  const list = [...state.dailyCashflow].sort((a, b) => num(a.seq) - num(b.seq));
+
+  if (activeDailyRowId !== null) {
+    const currentIndex = list.findIndex(x => x.id === activeDailyRowId);
+    if (currentIndex >= 0) {
+      list.splice(currentIndex + 1, 0, newRow);
+    } else {
+      list.push(newRow);
     }
+  } else {
+    list.push(newRow);
+  }
+
+  state.dailyCashflow = list.map((x, i) => ({
+    ...x,
+    seq: i + 1
+  }));
+
+  activeDailyRowId = newRow.id;
+
+  saveState("新增了一行每日现金流记录", "✅ 已新增一行");
+  renderAll();
+}
+
+
+
+
+
+
 
     function deleteDailyRow(id) {
       state.dailyCashflow = state.dailyCashflow
