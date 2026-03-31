@@ -201,7 +201,66 @@
     .tone-purple { background: linear-gradient(135deg, #f5f3ff, #fae8ff); }
 
     .chart-box { height: 340px; }
+    .daily-balance-chart-box { height: 360px; }
     .svg-chart { width: 100%; height: 100%; display: block; }
+
+
+
+    .runway-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 360px;
+}
+
+.runway-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: nowrap;
+  margin-bottom: 16px;
+}
+
+.runway-title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.runway-big {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.runway-note {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.9;
+  margin-bottom: 22px;
+  max-width: 900px;
+}
+
+
+
+    .runway-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .runway-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      font-size: 13px;
+      color: var(--muted);
+    }
 
     .legend {
       display: flex;
@@ -285,22 +344,13 @@
 
     tbody tr:last-child td { border-bottom: none; }
 
+    .daily-row-past td {
+      background: #dfefff !important;
+    }
 
-
-
-
-
-.daily-row-past td {
-  background: #dfefff !important;
-}
-
-.daily-row-past:hover td {
-  background: #cfe4ff !important;
-}
-
-
-
-
+    .daily-row-past:hover td {
+      background: #cfe4ff !important;
+    }
 
     input[type="number"], input[type="date"], input[type="text"], select {
       width: 100%;
@@ -459,6 +509,10 @@
 <body>
   <div id="toast" class="toast"></div>
 
+
+<div id="chartTooltip" style="display:none; position:fixed; z-index:9999; pointer-events:none; background:rgba(15,23,42,.94); color:#fff; padding:10px 12px; border-radius:12px; box-shadow:0 12px 30px rgba(2,6,23,.25); font-size:12px; line-height:1.7; min-width:180px;"></div>
+
+
   <div class="page">
     <div class="actions">
       <button class="btn" id="btnSave">保存本地数据</button>
@@ -559,6 +613,47 @@
     <section class="grid-2">
       <div class="card">
         <div class="title-row">
+          <h2>未来每日滚动累计结余趋势</h2>
+          <span class="help" data-tip="按每日现金流登记表的顺序，逐行计算滚动累计结余，并与安全线、0余额线对比。用于观察未来一段时间现金余额走势。">?</span>
+        </div>
+        <div class="daily-balance-chart-box">
+          <svg id="dailyBalanceSvg" class="svg-chart" viewBox="0 0 760 360"></svg>
+        </div>
+        <div class="legend">
+          <span>滚动累计结余</span>
+          <span>安全线</span>
+          <span>0余额线</span>
+        </div>
+      </div>
+
+
+
+
+      <div class="card runway-card">
+  <div>
+    <div class="runway-head">
+      <span class="help" data-tip="按未来滚动累计结余路径判断：如果未来某一天首次跌破0余额，则显示距离断点还有几天；如果未来始终不跌破0，则显示全年安全。下面保留最近30天平均日净流出作为辅助参考。">?</span>
+      <div class="metric-label runway-title">距首次资金断点</div>
+      <div class="runway-big" id="runwayDays">--</div>
+    </div>
+
+    <div class="runway-note" id="runwayDesc">等待计算</div>
+
+    <div class="runway-list">
+      <div class="runway-item" id="runwayAvgOut">最近30天平均日净流出：¥ 0</div>
+      <div class="runway-item" id="runwayCurrentBalance">当前可用余额：¥ 0</div>
+      <div class="runway-item" id="runwayWorstPoint">未来最低滚动余额：¥ 0</div>
+    </div>
+  </div>
+</div>
+
+
+
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div class="title-row">
           <h2>资金压力月份</h2>
           <span class="help" data-tip="按月度净现金流从低到高筛选压力最大的月份。净现金流为负且绝对值越大，表示压力越高。">?</span>
         </div>
@@ -631,82 +726,70 @@
         </div>
       </div>
 
-
-
-
-
-
-
       <div class="toolbar">
-  <div>
-    <div class="title-row" style="margin-bottom:4px;">
-      <h3>月度固定支出明细表</h3>
-      <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总、支出结构分析和趋势预测。">?</span>
-    </div>
-    <p>默认列出 1-12 月，供全年规划使用。</p>
-  </div>
-</div>
+        <div>
+          <div class="title-row" style="margin-bottom:4px;">
+            <h3>月度固定支出明细表</h3>
+            <span class="help" data-tip="用于录入每月固定成本，系统自动参与月度经营汇总、支出结构分析和趋势预测。">?</span>
+          </div>
+          <p>默认列出 1-12 月，供全年规划使用。</p>
+        </div>
+      </div>
 
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>月份</th>
-        <th>员工工资</th>
-        <th>社保</th>
-        <th>公积金</th>
-        <th>活动经费</th>
-        <th>水电杂费</th>
-        <th>车位租赁</th>
-        <th>房租物业费</th>
-        <th>商务费用</th>
-        <th>个人借款</th>
-        <th>其他固定支出</th>
-        <th>月度固定支出合计</th>
-      </tr>
-    </thead>
-    <tbody id="fixedBody"></tbody>
-  </table>
-</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>月份</th>
+              <th>员工工资</th>
+              <th>社保</th>
+              <th>公积金</th>
+              <th>活动经费</th>
+              <th>水电杂费</th>
+              <th>车位租赁</th>
+              <th>房租物业费</th>
+              <th>商务费用</th>
+              <th>个人借款</th>
+              <th>其他固定支出</th>
+              <th>月度固定支出合计</th>
+            </tr>
+          </thead>
+          <tbody id="fixedBody"></tbody>
+        </table>
+      </div>
 
-<div class="toolbar" style="margin-top:18px;">
-  <div>
-    <div class="title-row" style="margin-bottom:4px;">
-      <h3>每日现金流登记表</h3>
-      <span class="help" data-tip="累计逻辑：第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。预警逻辑：余额低于安全线触发预警，低于0触发高风险。">?</span>
-    </div>
-    <p>第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。</p>
-  </div>
-  <button class="btn primary" id="btnAddDaily">新增一行</button>
-</div>
+      <div class="toolbar" style="margin-top:18px;">
+        <div>
+          <div class="title-row" style="margin-bottom:4px;">
+            <h3>每日现金流登记表</h3>
+            <span class="help" data-tip="累计逻辑：第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。预警逻辑：余额低于安全线触发预警，低于0触发高风险。">?</span>
+          </div>
+          <p>第1行 = 起始资金 + 第1行当日净现金流；第N行 = 上一行滚动累计结余 + 第N行当日净现金流。</p>
+        </div>
+        <button class="btn primary" id="btnAddDaily">新增一行</button>
+      </div>
 
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>顺序</th>
-        <th>备注</th>
-        <th>调整</th>
-        <th>日期</th>
-        <th>月份</th>
-        <th>实际收入</th>
-        <th>预测收入</th>
-        <th>实际支出</th>
-        <th>预测支出</th>
-        <th>当日净现金流</th>
-        <th>滚动累计结余</th>
-        <th>当日预警状态</th>
-      </tr>
-    </thead>
-    <tbody id="dailyBody"></tbody>
-  </table>
-</div>
-
-
-
-
-
-
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>顺序</th>
+              <th>备注</th>
+              <th>调整</th>
+              <th>日期</th>
+              <th>月份</th>
+              <th>实际收入</th>
+              <th>预测收入</th>
+              <th>实际支出</th>
+              <th>预测支出</th>
+              <th>当日净现金流</th>
+              <th>滚动累计结余</th>
+              <th>当日预警状态</th>
+            </tr>
+          </thead>
+          <tbody id="dailyBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="two-col-bottom">
@@ -749,18 +832,9 @@
       snapshots: []
     };
 
-
-
-
-
-   let state = loadState();
-let toastTimer = null;
-let activeDailyRowId = null;
-
-
-
-
-
+    let state = loadState();
+    let toastTimer = null;
+    let activeDailyRowId = null;
 
     function num(v) { return Number.isFinite(Number(v)) ? Number(v) : 0; }
 
@@ -819,6 +893,8 @@ let activeDailyRowId = null;
       renderLogs();
     }
 
+
+
     function showToast(text) {
       const el = document.getElementById("toast");
       el.textContent = text;
@@ -827,10 +903,89 @@ let activeDailyRowId = null;
       toastTimer = setTimeout(() => { el.style.display = "none"; }, 1800);
     }
 
+
+
+
+
+function showChartTooltip(event, dateText, noteText, dailyNetText, balanceText, statusText) {
+  const tip = document.getElementById("chartTooltip");
+  if (!tip) return;
+
+  tip.innerHTML = `
+    <div style="font-weight:700; margin-bottom:4px;">${escapeHtml(dateText || "-")}</div>
+    <div>备注：${escapeHtml(noteText || "-")}</div>
+    <div>当日净现金流：¥ ${escapeHtml(dailyNetText || "0")}</div>
+    <div>滚动累计结余：¥ ${escapeHtml(balanceText || "0")}</div>
+    <div>预警状态：${escapeHtml(statusText || "-")}</div>
+  `;
+
+  tip.style.display = "block";
+
+  const offsetX = 14;
+  const offsetY = 14;
+  const tipWidth = tip.offsetWidth || 220;
+  const tipHeight = tip.offsetHeight || 110;
+
+  let left = event.clientX + offsetX;
+  let top = event.clientY + offsetY;
+
+  if (left + tipWidth > window.innerWidth - 12) {
+    left = event.clientX - tipWidth - 12;
+  }
+  if (top + tipHeight > window.innerHeight - 12) {
+    top = event.clientY - tipHeight - 12;
+  }
+
+  tip.style.left = `${left}px`;
+  tip.style.top = `${top}px`;
+}
+
+
+
+
+
+
+function moveChartTooltip(event) {
+  const tip = document.getElementById("chartTooltip");
+  if (!tip || tip.style.display === "none") return;
+
+  const offsetX = 14;
+  const offsetY = 14;
+  const tipWidth = tip.offsetWidth || 220;
+  const tipHeight = tip.offsetHeight || 110;
+
+  let left = event.clientX + offsetX;
+  let top = event.clientY + offsetY;
+
+  if (left + tipWidth > window.innerWidth - 12) {
+    left = event.clientX - tipWidth - 12;
+  }
+  if (top + tipHeight > window.innerHeight - 12) {
+    top = event.clientY - tipHeight - 12;
+  }
+
+  tip.style.left = `${left}px`;
+  tip.style.top = `${top}px`;
+}
+
+function hideChartTooltip() {
+  const tip = document.getElementById("chartTooltip");
+  if (!tip) return;
+  tip.style.display = "none";
+}
+
+
+
+
+
     function badge(level) {
       const cls = level === "高风险" ? "danger" : level === "预警" ? "warn" : "ok";
       return `<span class="badge ${cls}">${level}</span>`;
     }
+
+
+
+
 
     function exportData() {
       const blob = new Blob([JSON.stringify(state, null, 2)], {
@@ -845,6 +1000,9 @@ let activeDailyRowId = null;
       pushLog("导出了一份备份文件");
       showToast("📁 已导出备份");
     }
+
+
+
 
     async function copyBackup() {
       try {
@@ -879,37 +1037,30 @@ let activeDailyRowId = null;
       renderAll();
     }
 
-    
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = {
+            ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
+            ...parsed,
+            fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12
+              ? parsed.fixedExpense
+              : JSON.parse(JSON.stringify(DEFAULT_STATE.fixedExpense)),
+            actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
+            snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
+          };
 
-
-function importData(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const parsed = JSON.parse(reader.result);
-      state = {
-        ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
-        ...parsed,
-        fixedExpense: Array.isArray(parsed.fixedExpense) && parsed.fixedExpense.length === 12
-          ? parsed.fixedExpense
-          : JSON.parse(JSON.stringify(DEFAULT_STATE.fixedExpense)),
-        actionLogs: Array.isArray(parsed.actionLogs) ? parsed.actionLogs : [],
-        snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : []
+          const fileName = file && file.name ? file.name : "未命名备份文件";
+          saveState(`导入并恢复了备份文件：${fileName}`, "♻️ 已导入恢复成功");
+          renderAll();
+        } catch {
+          showToast("导入失败，请检查备份文件");
+        }
       };
-
-      const fileName = file && file.name ? file.name : "未命名备份文件";
-      saveState(`导入并恢复了备份文件：${fileName}`, "♻️ 已导入恢复成功");
-      renderAll();
-    } catch {
-      showToast("导入失败，请检查备份文件");
+      reader.readAsText(file);
     }
-  };
-  reader.readAsText(file);
-}
-
-
-
-
 
     function getDerived() {
       const ordered = [...state.dailyCashflow].sort((a, b) => num(a.seq) - num(b.seq) || num(a.id) - num(b.id));
@@ -1037,16 +1188,80 @@ function importData(file) {
         other: num(r.other)
       }));
 
+      const recent30Rows = dailyRows.filter((r) => {
+        const dt = parseDate(r.date);
+        if (!dt || dt.getTime() > today.getTime()) return false;
+        const diff = today.getTime() - dt.getTime();
+        return diff <= 30 * 24 * 60 * 60 * 1000;
+      });
+
+
+
+
+      const recent30OutRows = recent30Rows.filter((r) => num(r.dailyNet) < 0);
+const recent30TotalOut = recent30OutRows.reduce((s, r) => s + Math.abs(num(r.dailyNet)), 0);
+const avgDailyOutflow = recent30OutRows.length ? recent30TotalOut / recent30OutRows.length : 0;
+
+// 未来数据：只看今天及以后
+const futureRows = dailyRows.filter((r) => {
+  const dt = parseDate(r.date);
+  if (!dt) return false;
+  dt.setHours(0, 0, 0, 0);
+  const todayOnly = new Date();
+  todayOnly.setHours(0, 0, 0, 0);
+  return dt.getTime() >= todayOnly.getTime();
+});
+
+// 未来最低滚动余额：只按未来路径算，和左图一致
+const futureLowestBalance = futureRows.length
+  ? Math.min(...futureRows.map((r) => num(r.rollingBalance)))
+  : currentAvailableBalance;
+
+// 首次跌破0余额的未来记录
+const firstBreakRow = futureRows.find((r) => num(r.rollingBalance) < 0);
+
+// 距首次断点还有几天
+let daysToBreak = null;
+if (firstBreakRow) {
+  const breakDate = parseDate(firstBreakRow.date);
+  const todayOnly = new Date();
+  todayOnly.setHours(0, 0, 0, 0);
+
+  if (breakDate) {
+    breakDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((breakDate.getTime() - todayOnly.getTime()) / (24 * 60 * 60 * 1000));
+    daysToBreak = diffDays < 0 ? 0 : diffDays;
+  } else {
+    daysToBreak = 0;
+  }
+}
+
+// 原来的历史平均流出法保留为辅助参考
+const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutflow : null;
+
+
+
+
+
+
+
+
       return {
         dailyRows,
-        monthlySummary,
-        annual,
-        currentAvailableBalance,
-        currentMonth,
-        pressureMonths,
-        receiptDependencyMonths,
-        expenseBreakdown,
-        fixedTrend
+  monthlySummary,
+  annual,
+  currentAvailableBalance,
+  currentMonth,
+  pressureMonths,
+  receiptDependencyMonths,
+  expenseBreakdown,
+  fixedTrend,
+  avgDailyOutflow,
+  runwayDays,
+  futureLowestBalance,
+  futureRows,
+  firstBreakRow,
+  daysToBreak
       };
     }
 
@@ -1172,64 +1387,235 @@ function importData(file) {
         : `<div class="top3-empty">当前还没有可展示的非零 TOP3 支出项。</div>`;
     }
 
-
-
-
-
-
     function renderFixedTrend(d) {
-  const svg = document.getElementById("fixedTrendSvg");
-  const width = 720, height = 340, left = 50, right = 20, top = 20, bottom = 40;
-  const max = Math.max(1, ...d.fixedTrend.map(x => Math.max(x.total, x.other)));
+      const svg = document.getElementById("fixedTrendSvg");
+      const width = 720, height = 340, left = 50, right = 20, top = 20, bottom = 40;
+      const max = Math.max(1, ...d.fixedTrend.map(x => Math.max(x.total, x.other)));
+      const plotW = width - left - right;
+      const plotH = height - top - bottom;
+      const xStep = plotW / (d.fixedTrend.length - 1 || 1);
+
+      function yOf(v) {
+        return top + plotH - (v / max) * plotH;
+      }
+
+      let grid = "";
+      for (let i = 0; i <= 4; i++) {
+        const y = top + (plotH / 4) * i;
+        const val = Math.round(max - (max / 4) * i);
+        grid += `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
+        grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${val}</text>`;
+      }
+
+      let labels = "";
+      d.fixedTrend.forEach((p, i) => {
+        const x = left + xStep * i;
+        labels += `<text x="${x}" y="${height - 10}" text-anchor="middle" font-size="12" fill="#475569">${p.month}</text>`;
+      });
+
+      const line1 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.total)}`).join(" ");
+      const line2 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.other)}`).join(" ");
+
+      let dots = "";
+      d.fixedTrend.forEach((p, i) => {
+        const x = left + xStep * i;
+        dots += `<circle cx="${x}" cy="${yOf(p.total)}" r="4" fill="#ef4444"/>`;
+        dots += `<text x="${x}" y="${yOf(p.total) - 8}" text-anchor="middle" font-size="11" fill="#64748b">${money(p.total)}</text>`;
+        dots += `<circle cx="${x}" cy="${yOf(p.other)}" r="3.5" fill="#3b82f6"/>`;
+        dots += `<text x="${x}" y="${yOf(p.other) - 10}" text-anchor="middle" font-size="11" fill="#3b82f6">${money(p.other)}</text>`;
+      });
+
+      svg.innerHTML = `${grid}
+        <polyline fill="none" stroke="#ef4444" stroke-width="3" points="${line1}"/>
+        <polyline fill="none" stroke="#3b82f6" stroke-width="2" points="${line2}"/>
+        ${dots}
+        ${labels}`;
+
+      animatePolyline(svg);
+    }
+
+
+
+
+
+
+
+
+    function renderDailyBalanceTrend(d) {
+  const svg = document.getElementById("dailyBalanceSvg");
+  if (!svg) return;
+
+  const width = 760, height = 360, left = 58, right = 18, top = 20, bottom = 42;
   const plotW = width - left - right;
   const plotH = height - top - bottom;
-  const xStep = plotW / (d.fixedTrend.length - 1 || 1);
 
-  function yOf(v) {
-    return top + plotH - (v / max) * plotH;
+  // 只显示今天及后续日期
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const data = d.dailyRows.filter((row) => {
+    const dt = parseDate(row.date);
+    if (!dt) return false;
+    dt.setHours(0, 0, 0, 0);
+    return dt.getTime() >= today.getTime();
+  });
+
+  if (!data.length) {
+    svg.innerHTML = `<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
+      <text x="${width / 2}" y="${height / 2}" text-anchor="middle" font-size="18" fill="#94a3b8">今天及未来暂无现金流数据</text>`;
+    return;
   }
+
+  const values = data.map(x => num(x.rollingBalance));
+  values.push(num(state.safeLine));
+  values.push(0);
+
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const span = Math.max(1, maxV - minV);
+
+  const xStep = data.length > 1 ? plotW / (data.length - 1) : 0;
+  const yOf = (v) => top + plotH - ((v - minV) / span) * plotH;
 
   let grid = "";
   for (let i = 0; i <= 4; i++) {
     const y = top + (plotH / 4) * i;
-    const val = Math.round(max - (max / 4) * i);
+    const val = Math.round(maxV - (span / 4) * i);
     grid += `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
-    grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${val}</text>`;
+    grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${money(val)}</text>`;
   }
 
+  // 横坐标标签：自动稀疏 + 简化日期显示
   let labels = "";
-  d.fixedTrend.forEach((p, i) => {
+  const maxLabels = 8;
+  const labelStep = Math.max(1, Math.ceil(data.length / maxLabels));
+
+  data.forEach((p, i) => {
     const x = left + xStep * i;
-    labels += `<text x="${x}" y="${height - 10}" text-anchor="middle" font-size="12" fill="#475569">${p.month}</text>`;
+    const shouldShowLabel = (i % labelStep === 0) || (i === data.length - 1);
+
+    if (shouldShowLabel) {
+      let label = p.date || `第${i + 1}行`;
+      const parts = String(label).split("/");
+      if (parts.length === 3) {
+        label = `${parts[1]}/${parts[2]}`;
+      }
+
+      labels += `
+        <text
+          x="${x}"
+          y="${height - 6}"
+          text-anchor="middle"
+          font-size="11"
+          fill="#64748b"
+        >${label}</text>
+      `;
+    }
   });
 
-  const line1 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.total)}`).join(" ");
-  const line2 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.other)}`).join(" ");
+  const linePoints = data.map((p, i) => `${left + xStep * i},${yOf(p.rollingBalance)}`).join(" ");
+  const safeY = yOf(num(state.safeLine));
+  const zeroY = yOf(0);
+
+  const balances = data.map(p => num(p.rollingBalance));
+  const maxBalance = Math.max(...balances);
+  const minBalance = Math.min(...balances);
+  const lastIndex = data.length - 1;
 
   let dots = "";
-  d.fixedTrend.forEach((p, i) => {
+  data.forEach((p, i) => {
     const x = left + xStep * i;
+    const y = yOf(p.rollingBalance);
+    const balance = num(p.rollingBalance);
 
-    // 红线：固定支出合计
-    dots += `<circle cx="${x}" cy="${yOf(p.total)}" r="4" fill="#ef4444"/>`;
-    dots += `<text x="${x}" y="${yOf(p.total) - 8}" text-anchor="middle" font-size="11" fill="#64748b">${money(p.total)}</text>`;
+    const isLast = i === lastIndex;
+    const isMax = balance === maxBalance;
+    const isMin = balance === minBalance;
 
-    // 蓝线：其他固定支出
-    dots += `<circle cx="${x}" cy="${yOf(p.other)}" r="3.5" fill="#3b82f6"/>`;
-    dots += `<text x="${x}" y="${yOf(p.other) - 10}" text-anchor="middle" font-size="11" fill="#3b82f6">${money(p.other)}</text>`;
+    const pointColor = balance < 0
+      ? "#dc2626"
+      : balance < num(state.safeLine)
+        ? "#d97706"
+        : "#2563eb";
+
+    const pointRadius = isLast || isMax || isMin ? 5 : 3.5;
+
+    dots += `
+      <circle
+        cx="${x}"
+        cy="${y}"
+        r="10"
+        fill="rgba(255,255,255,0.001)"
+        style="cursor:pointer"
+        onmouseover='showChartTooltip(
+          event,
+          "${String(p.date || `第${i + 1}行`).replaceAll(`"`, "&quot;")}",
+          "${String(p.note || "-").replaceAll(`"`, "&quot;")}",
+          "${money(p.dailyNet)}",
+          "${money(p.rollingBalance)}",
+          "${String(p.dailyStatus || "-").replaceAll(`"`, "&quot;")}"
+        )'
+        onmousemove="moveChartTooltip(event)"
+        onmouseout="hideChartTooltip()"
+      />
+      <circle
+        cx="${x}"
+        cy="${y}"
+        r="${pointRadius}"
+        fill="${pointColor}"
+        style="pointer-events:none"
+      />
+    `;
+
+    // 只显示关键点标签
+    if (isLast || isMax || isMin) {
+      dots += `<text x="${x}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#64748b">${money(balance)}</text>`;
+    }
   });
 
-  svg.innerHTML = `${grid}
-    <polyline fill="none" stroke="#ef4444" stroke-width="3" points="${line1}"/>
-    <polyline fill="none" stroke="#3b82f6" stroke-width="2" points="${line2}"/>
+  svg.innerHTML = `
+    ${grid}
+    <line x1="${left}" y1="${safeY}" x2="${width - right}" y2="${safeY}" stroke="#d97706" stroke-dasharray="6 5" />
+    <line x1="${left}" y1="${zeroY}" x2="${width - right}" y2="${zeroY}" stroke="#dc2626" stroke-dasharray="6 5" />
+    <polyline fill="none" stroke="#2563eb" stroke-width="3" points="${linePoints}" />
     ${dots}
-    ${labels}`;
+    ${labels}
+  `;
 
   animatePolyline(svg);
 }
 
 
 
+
+
+
+
+
+
+    function renderRunway(d) {
+  const runwayDaysEl = document.getElementById("runwayDays");
+  const runwayDescEl = document.getElementById("runwayDesc");
+  const avgOutEl = document.getElementById("runwayAvgOut");
+  const balanceEl = document.getElementById("runwayCurrentBalance");
+  const worstEl = document.getElementById("runwayWorstPoint");
+
+  if (!runwayDaysEl) return;
+
+  // 主指标：按未来路径判断是否会断
+  if (d.firstBreakRow && d.daysToBreak !== null) {
+    runwayDaysEl.textContent = `${d.daysToBreak} 天`;
+    runwayDescEl.textContent = `预计在 ${d.firstBreakRow.date || "未来某日"} 首次跌破 0 余额，建议提前安排回款或调整支出。`;
+  } else {
+    runwayDaysEl.textContent = "全年安全";
+    runwayDescEl.textContent = "按当前未来现金流路径测算，未来计划内未出现跌破 0 余额的情况。";
+  }
+
+  // 辅助指标：历史流出速度仍保留
+  avgOutEl.textContent = `最近30天平均日净流出：¥ ${money(d.avgDailyOutflow)}`;
+  balanceEl.textContent = `当前可用余额：¥ ${money(d.currentAvailableBalance)}`;
+  worstEl.textContent = `未来最低滚动余额：¥ ${money(d.futureLowestBalance)}`;
+}
 
 
 
@@ -1290,104 +1676,94 @@ function importData(file) {
         .replaceAll('"', "&quot;");
     }
 
-
-
-function setActiveDailyRow(id) {
-  activeDailyRowId = id;
-}
-
-
-
+    function setActiveDailyRow(id) {
+      activeDailyRowId = id;
+    }
 
     function renderDaily(d) {
-  const body = document.getElementById("dailyBody");
+      const body = document.getElementById("dailyBody");
 
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
 
-  body.innerHTML = d.dailyRows.map((r) => {
-    const rowDate = parseDate(r.date);
-    const isPastOrToday = rowDate && rowDate.getTime() <= today.getTime();
-    const rowClass = isPastOrToday ? "daily-row-past" : "";
+      body.innerHTML = d.dailyRows.map((r) => {
+        const rowDate = parseDate(r.date);
+        const isPastOrToday = rowDate && rowDate.getTime() <= today.getTime();
+        const rowClass = isPastOrToday ? "daily-row-past" : "";
 
-    return `
-      <tr class="${rowClass}">
-        <td>${r.seq}</td>
-        <td>
-          <input
-            type="text"
-            value="${escapeHtml(r.note || "")}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyText(${r.id}, 'note', this.value)"
-          >
-        </td>
-        <td>
-          <div class="row-actions">
-            <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'up')">上移</button>
-            <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'down')">下移</button>
-            <button class="tiny del" onclick="setActiveDailyRow(${r.id}); deleteDailyRow(${r.id})">删除</button>
-          </div>
-        </td>
-        <td>
-          <input
-            type="date"
-            value="${(r.date || "").replace(/\//g, "-")}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyDate(${r.id}, this.value)"
-          >
-        </td>
-        <td>
-          <select
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyText(${r.id}, 'month', this.value)"
-          >
-            ${MONTHS.map((m) => `<option value="${m}" ${m === r.month ? 'selected' : ''}>${m}</option>`).join('')}
-          </select>
-        </td>
-        <td>
-          <input
-            type="number"
-            value="${num(r.actualIncome)}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyNum(${r.id}, 'actualIncome', this.value)"
-          >
-        </td>
-        <td>
-          <input
-            type="number"
-            value="${num(r.forecastIncome)}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyNum(${r.id}, 'forecastIncome', this.value)"
-          >
-        </td>
-        <td>
-          <input
-            type="number"
-            value="${num(r.actualExpense)}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyNum(${r.id}, 'actualExpense', this.value)"
-          >
-        </td>
-        <td>
-          <input
-            type="number"
-            value="${num(r.forecastExpense)}"
-            onfocus="setActiveDailyRow(${r.id})"
-            onchange="updateDailyNum(${r.id}, 'forecastExpense', this.value)"
-          >
-        </td>
-        <td>¥ ${money(r.dailyNet)}</td>
-        <td>¥ ${money(r.rollingBalance)}</td>
-        <td>${badge(r.dailyStatus)}</td>
-      </tr>
-    `;
-  }).join("");
-}
-
-
-
-
-
+        return `
+          <tr class="${rowClass}">
+            <td>${r.seq}</td>
+            <td>
+              <input
+                type="text"
+                value="${escapeHtml(r.note || "")}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyText(${r.id}, 'note', this.value)"
+              >
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'up')">上移</button>
+                <button class="tiny" onclick="setActiveDailyRow(${r.id}); moveDailyRow(${r.id}, 'down')">下移</button>
+                <button class="tiny del" onclick="setActiveDailyRow(${r.id}); deleteDailyRow(${r.id})">删除</button>
+              </div>
+            </td>
+            <td>
+              <input
+                type="date"
+                value="${(r.date || "").replace(/\//g, "-")}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyDate(${r.id}, this.value)"
+              >
+            </td>
+            <td>
+              <select
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyText(${r.id}, 'month', this.value)"
+              >
+                ${MONTHS.map((m) => `<option value="${m}" ${m === r.month ? 'selected' : ''}>${m}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <input
+                type="number"
+                value="${num(r.actualIncome)}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyNum(${r.id}, 'actualIncome', this.value)"
+              >
+            </td>
+            <td>
+              <input
+                type="number"
+                value="${num(r.forecastIncome)}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyNum(${r.id}, 'forecastIncome', this.value)"
+              >
+            </td>
+            <td>
+              <input
+                type="number"
+                value="${num(r.actualExpense)}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyNum(${r.id}, 'actualExpense', this.value)"
+              >
+            </td>
+            <td>
+              <input
+                type="number"
+                value="${num(r.forecastExpense)}"
+                onfocus="setActiveDailyRow(${r.id})"
+                onchange="updateDailyNum(${r.id}, 'forecastExpense', this.value)"
+              >
+            </td>
+            <td>¥ ${money(r.dailyNet)}</td>
+            <td>¥ ${money(r.rollingBalance)}</td>
+            <td>${badge(r.dailyStatus)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
 
     function renderFixed() {
       const body = document.getElementById("fixedBody");
@@ -1462,53 +1838,42 @@ function setActiveDailyRow(id) {
       renderAll();
     }
 
-
-
-
-
-
     function addDailyRow() {
-  const newRow = {
-    id: Date.now(),
-    seq: state.dailyCashflow.length + 1,
-    date: "",
-    month: CURRENT_MONTH,
-    actualIncome: 0,
-    forecastIncome: 0,
-    actualExpense: 0,
-    forecastExpense: 0,
-    note: ""
-  };
+      const newRow = {
+        id: Date.now(),
+        seq: state.dailyCashflow.length + 1,
+        date: "",
+        month: CURRENT_MONTH,
+        actualIncome: 0,
+        forecastIncome: 0,
+        actualExpense: 0,
+        forecastExpense: 0,
+        note: ""
+      };
 
-  const list = [...state.dailyCashflow].sort((a, b) => num(a.seq) - num(b.seq));
+      const list = [...state.dailyCashflow].sort((a, b) => num(a.seq) - num(b.seq));
 
-  if (activeDailyRowId !== null) {
-    const currentIndex = list.findIndex(x => x.id === activeDailyRowId);
-    if (currentIndex >= 0) {
-      list.splice(currentIndex + 1, 0, newRow);
-    } else {
-      list.push(newRow);
+      if (activeDailyRowId !== null) {
+        const currentIndex = list.findIndex(x => x.id === activeDailyRowId);
+        if (currentIndex >= 0) {
+          list.splice(currentIndex + 1, 0, newRow);
+        } else {
+          list.push(newRow);
+        }
+      } else {
+        list.push(newRow);
+      }
+
+      state.dailyCashflow = list.map((x, i) => ({
+        ...x,
+        seq: i + 1
+      }));
+
+      activeDailyRowId = newRow.id;
+
+      saveState("新增了一行每日现金流记录", "✅ 已新增一行");
+      renderAll();
     }
-  } else {
-    list.push(newRow);
-  }
-
-  state.dailyCashflow = list.map((x, i) => ({
-    ...x,
-    seq: i + 1
-  }));
-
-  activeDailyRowId = newRow.id;
-
-  saveState("新增了一行每日现金流记录", "✅ 已新增一行");
-  renderAll();
-}
-
-
-
-
-
-
 
     function deleteDailyRow(id) {
       state.dailyCashflow = state.dailyCashflow
@@ -1582,6 +1947,8 @@ function setActiveDailyRow(id) {
       renderMetricCards(d);
       renderExpenseBreakdown(d);
       renderFixedTrend(d);
+      renderDailyBalanceTrend(d);
+      renderRunway(d);
       renderMonthlySummary(d);
       renderPressure(d);
       renderReceipt(d);
