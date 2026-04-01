@@ -229,12 +229,17 @@
 }
 
 .runway-big {
-  font-size: 72px;
+  font-size: 56px;
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.05;
   margin: 0;
   color: var(--text);
   white-space: nowrap;
+}
+
+.runway-big.text-mode {
+  font-size: 42px;
+  letter-spacing: 1px;
 }
 
 .runway-note {
@@ -807,7 +812,7 @@
   <script>
     const MONTHS = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
     const STORAGE_KEY = "cashflow_dashboard_v8_html";
-    const CURRENT_MONTH = "3月";
+    const CURRENT_MONTH = `${new Date().getMonth() + 1}月`;
 
     const DEFAULT_STATE = {
       openingCash: 322731,
@@ -1594,7 +1599,20 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
 
 
     function renderRunway(d) {
-  const runwayDaysEl = document.getElementById("runwayDays");
+  
+
+const runwayDaysEl = document.getElementById("runwayDays");
+
+if (d.firstBreakRow) {
+  runwayDaysEl.textContent = `${d.daysToBreak}天`;
+  runwayDaysEl.classList.remove("text-mode");
+} else {
+  runwayDaysEl.textContent = "全年安全";
+  runwayDaysEl.classList.add("text-mode");
+}
+
+
+
   const runwayDescEl = document.getElementById("runwayDesc");
   const avgOutEl = document.getElementById("runwayAvgOut");
   const balanceEl = document.getElementById("runwayCurrentBalance");
