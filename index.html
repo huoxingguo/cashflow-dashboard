@@ -602,15 +602,15 @@
 
       <div class="card">
         <div class="title-row">
-          <h2>月度固定支出趋势预测</h2>
-          <span class="help" data-tip="红线表示每月固定支出合计，蓝线表示每月其他固定支出。用于观察固定成本高峰月份。">?</span>
+          <h2>次月至12月月末滚动累计结余预测</h2>
+          <span class="help" data-tip="直接基于月度经营总表中的月末滚动累计结余绘制柱状图。从次月开始，一直显示到12月，并用安全线观察哪些月份低于预警线。">?</span>
         </div>
         <div class="chart-box">
           <svg id="fixedTrendSvg" class="svg-chart" viewBox="0 0 720 340"></svg>
         </div>
         <div class="legend">
-          <span>固定支出合计</span>
-          <span>其他固定支出</span>
+          <span>月末滚动累计结余</span>
+          <span>月度预警安全线</span>
         </div>
       </div>
     </section>
@@ -618,15 +618,14 @@
     <section class="grid-2">
       <div class="card">
         <div class="title-row">
-          <h2>未来每日滚动累计结余趋势</h2>
-          <span class="help" data-tip="按每日现金流登记表的顺序，逐行计算滚动累计结余，并与安全线、0余额线对比。用于观察未来一段时间现金余额走势。">?</span>
+          <h2>当月每日滚动累计结余趋势</h2>
+          <span class="help" data-tip="按每日现金流登记表的顺序，只统计当月1日到当月最后一日的滚动累计结余，并只保留0余额线预警，用于观察本月内是否出现资金断点。">?</span>
         </div>
         <div class="daily-balance-chart-box">
           <svg id="dailyBalanceSvg" class="svg-chart" viewBox="0 0 760 360"></svg>
         </div>
         <div class="legend">
           <span>滚动累计结余</span>
-          <span>安全线</span>
           <span>0余额线</span>
         </div>
       </div>
@@ -637,8 +636,8 @@
       <div class="card runway-card">
   <div>
     <div class="runway-head">
-      <span class="help" data-tip="按未来滚动累计结余路径判断：如果未来某一天首次跌破0余额，则显示距离断点还有几天；如果未来始终不跌破0，则显示全年安全。下面保留最近30天平均日净流出作为辅助参考。">?</span>
-      <div class="metric-label runway-title">距首次资金断点</div>
+      <span class="help" data-tip="按当月滚动累计结余路径判断：如果本月内某一天首次跌破0余额，则显示距离断点还有几天；如果本月内始终不跌破0，则显示本月安全。下面保留最近30天平均日净流出作为辅助参考。">?</span>
+      <div class="metric-label runway-title">距本月首次资金断点</div>
       <div class="runway-big" id="runwayDays">--</div>
     </div>
 
@@ -647,7 +646,7 @@
     <div class="runway-list">
       <div class="runway-item" id="runwayAvgOut">最近30天平均日净流出：¥ 0</div>
       <div class="runway-item" id="runwayCurrentBalance">当前可用余额：¥ 0</div>
-      <div class="runway-item" id="runwayWorstPoint">未来最低滚动余额：¥ 0</div>
+      <div class="runway-item" id="runwayWorstPoint">当月最低滚动余额：¥ 0</div>
     </div>
   </div>
 </div>
@@ -1207,25 +1206,24 @@ function hideChartTooltip() {
 const recent30TotalOut = recent30OutRows.reduce((s, r) => s + Math.abs(num(r.dailyNet)), 0);
 const avgDailyOutflow = recent30OutRows.length ? recent30TotalOut / recent30OutRows.length : 0;
 
-// 未来数据：只看今天及以后
-const futureRows = dailyRows.filter((r) => {
+// 当月数据：只看当月1日到当月最后一日
+const currentMonthNum = Number(String(CURRENT_MONTH).replace("月", ""));
+
+const currentMonthRows = dailyRows.filter((r) => {
   const dt = parseDate(r.date);
   if (!dt) return false;
-  dt.setHours(0, 0, 0, 0);
-  const todayOnly = new Date();
-  todayOnly.setHours(0, 0, 0, 0);
-  return dt.getTime() >= todayOnly.getTime();
+  return (dt.getMonth() + 1) === currentMonthNum;
 });
 
-// 未来最低滚动余额：只按未来路径算，和左图一致
-const futureLowestBalance = futureRows.length
-  ? Math.min(...futureRows.map((r) => num(r.rollingBalance)))
+// 当月最低滚动余额：只按当月路径算
+const futureLowestBalance = currentMonthRows.length
+  ? Math.min(...currentMonthRows.map((r) => num(r.rollingBalance)))
   : currentAvailableBalance;
 
-// 首次跌破0余额的未来记录
-const firstBreakRow = futureRows.find((r) => num(r.rollingBalance) < 0);
+// 本月内首次跌破0余额的记录
+const firstBreakRow = currentMonthRows.find((r) => num(r.rollingBalance) < 0);
 
-// 距首次断点还有几天
+// 距首次断点还有几天（只算当月）
 let daysToBreak = null;
 if (firstBreakRow) {
   const breakDate = parseDate(firstBreakRow.date);
@@ -1264,7 +1262,7 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
   avgDailyOutflow,
   runwayDays,
   futureLowestBalance,
-  futureRows,
+  futureRows: currentMonthRows,
   firstBreakRow,
   daysToBreak
       };
@@ -1392,61 +1390,77 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
         : `<div class="top3-empty">当前还没有可展示的非零 TOP3 支出项。</div>`;
     }
 
+    
     function renderFixedTrend(d) {
       const svg = document.getElementById("fixedTrendSvg");
-      const width = 720, height = 340, left = 50, right = 20, top = 20, bottom = 40;
-      const max = Math.max(1, ...d.fixedTrend.map(x => Math.max(x.total, x.other)));
+      const width = 720, height = 340, left = 56, right = 20, top = 20, bottom = 40;
+
+      const currentMonthNum = Number(String(CURRENT_MONTH).replace("月", ""));
+      const rows = d.monthlySummary.filter((row) => {
+        const m = Number(String(row.month).replace("月", ""));
+        return m > currentMonthNum;
+      });
+
+      if (!rows.length) {
+        svg.innerHTML = `<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
+          <text x="${width / 2}" y="${height / 2}" text-anchor="middle" font-size="18" fill="#94a3b8">当前月份之后暂无可展示月份</text>`;
+        return;
+      }
+
+      const maxV = Math.max(num(state.safeLine), ...rows.map((x) => num(x.endingCash)));
+      const minV = Math.min(0, ...rows.map((x) => num(x.endingCash)));
+      const span = Math.max(1, maxV - minV);
+
       const plotW = width - left - right;
       const plotH = height - top - bottom;
-      const xStep = plotW / (d.fixedTrend.length - 1 || 1);
+      const step = plotW / rows.length;
+      const barW = Math.min(46, step * 0.58);
 
       function yOf(v) {
-        return top + plotH - (v / max) * plotH;
+        return top + plotH - ((v - minV) / span) * plotH;
       }
+
+      const zeroY = yOf(0);
+      const safeY = yOf(num(state.safeLine));
 
       let grid = "";
       for (let i = 0; i <= 4; i++) {
         const y = top + (plotH / 4) * i;
-        const val = Math.round(max - (max / 4) * i);
+        const val = Math.round(maxV - (span / 4) * i);
         grid += `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#cbd5e1" stroke-dasharray="5 5"/>`;
-        grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${val}</text>`;
+        grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${money(val)}</text>`;
       }
 
+      let bars = "";
       let labels = "";
-      d.fixedTrend.forEach((p, i) => {
-        const x = left + xStep * i;
-        labels += `<text x="${x}" y="${height - 10}" text-anchor="middle" font-size="12" fill="#475569">${p.month}</text>`;
+
+      rows.forEach((row, i) => {
+        const xCenter = left + step * i + step / 2;
+        const value = num(row.endingCash);
+        const y = yOf(value);
+        const h = Math.max(2, Math.abs(zeroY - y));
+        const x = xCenter - barW / 2;
+        const rectY = value >= 0 ? y : zeroY;
+        const fill = value < 0 ? "#dc2626" : value < num(state.safeLine) ? "#d97706" : "#2563eb";
+
+        bars += `<rect x="${x}" y="${rectY}" width="0" data-final-width="${barW}" height="${h}" rx="10" fill="${fill}" />`;
+        bars += `<text x="${xCenter}" y="${value >= 0 ? y - 8 : rectY + h + 14}" text-anchor="middle" font-size="11" fill="#64748b">¥ ${money(value)}</text>`;
+        labels += `<text x="${xCenter}" y="${height - 10}" text-anchor="middle" font-size="12" fill="#475569">${row.month}</text>`;
       });
 
-      const line1 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.total)}`).join(" ");
-      const line2 = d.fixedTrend.map((p, i) => `${left + xStep * i},${yOf(p.other)}`).join(" ");
+      svg.innerHTML = `
+        ${grid}
+        <line x1="${left}" y1="${safeY}" x2="${width - right}" y2="${safeY}" stroke="#d97706" stroke-dasharray="6 5" />
+        <line x1="${left}" y1="${zeroY}" x2="${width - right}" y2="${zeroY}" stroke="#cbd5e1" stroke-dasharray="3 4" />
+        ${bars}
+        ${labels}
+      `;
 
-      let dots = "";
-      d.fixedTrend.forEach((p, i) => {
-        const x = left + xStep * i;
-        dots += `<circle cx="${x}" cy="${yOf(p.total)}" r="4" fill="#ef4444"/>`;
-        dots += `<text x="${x}" y="${yOf(p.total) - 8}" text-anchor="middle" font-size="11" fill="#64748b">${money(p.total)}</text>`;
-        dots += `<circle cx="${x}" cy="${yOf(p.other)}" r="3.5" fill="#3b82f6"/>`;
-        dots += `<text x="${x}" y="${yOf(p.other) - 10}" text-anchor="middle" font-size="11" fill="#3b82f6">${money(p.other)}</text>`;
-      });
-
-      svg.innerHTML = `${grid}
-        <polyline fill="none" stroke="#ef4444" stroke-width="3" points="${line1}"/>
-        <polyline fill="none" stroke="#3b82f6" stroke-width="2" points="${line2}"/>
-        ${dots}
-        ${labels}`;
-
-      animatePolyline(svg);
+      animateRectWidths(svg);
     }
 
-
-
-
-
-
-
-
-    function renderDailyBalanceTrend(d) {
+    
+function renderDailyBalanceTrend(d) {
   const svg = document.getElementById("dailyBalanceSvg");
   if (!svg) return;
 
@@ -1454,25 +1468,20 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
   const plotW = width - left - right;
   const plotH = height - top - bottom;
 
-  // 只显示今天及后续日期
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
+  const currentMonthNum = Number(String(CURRENT_MONTH).replace("月", ""));
   const data = d.dailyRows.filter((row) => {
     const dt = parseDate(row.date);
     if (!dt) return false;
-    dt.setHours(0, 0, 0, 0);
-    return dt.getTime() >= today.getTime();
+    return (dt.getMonth() + 1) === currentMonthNum;
   });
 
   if (!data.length) {
     svg.innerHTML = `<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
-      <text x="${width / 2}" y="${height / 2}" text-anchor="middle" font-size="18" fill="#94a3b8">今天及未来暂无现金流数据</text>`;
+      <text x="${width / 2}" y="${height / 2}" text-anchor="middle" font-size="18" fill="#94a3b8">当月暂无现金流数据</text>`;
     return;
   }
 
   const values = data.map(x => num(x.rollingBalance));
-  values.push(num(state.safeLine));
   values.push(0);
 
   const minV = Math.min(...values);
@@ -1490,7 +1499,6 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
     grid += `<text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#64748b">${money(val)}</text>`;
   }
 
-  // 横坐标标签：自动稀疏 + 简化日期显示
   let labels = "";
   const maxLabels = 8;
   const labelStep = Math.max(1, Math.ceil(data.length / maxLabels));
@@ -1502,24 +1510,12 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
     if (shouldShowLabel) {
       let label = p.date || `第${i + 1}行`;
       const parts = String(label).split("/");
-      if (parts.length === 3) {
-        label = `${parts[1]}/${parts[2]}`;
-      }
-
-      labels += `
-        <text
-          x="${x}"
-          y="${height - 6}"
-          text-anchor="middle"
-          font-size="11"
-          fill="#64748b"
-        >${label}</text>
-      `;
+      if (parts.length === 3) label = `${parts[1]}/${parts[2]}`;
+      labels += `<text x="${x}" y="${height - 6}" text-anchor="middle" font-size="11" fill="#64748b">${label}</text>`;
     }
   });
 
   const linePoints = data.map((p, i) => `${left + xStep * i},${yOf(p.rollingBalance)}`).join(" ");
-  const safeY = yOf(num(state.safeLine));
   const zeroY = yOf(0);
 
   const balances = data.map(p => num(p.rollingBalance));
@@ -1532,24 +1528,15 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
     const x = left + xStep * i;
     const y = yOf(p.rollingBalance);
     const balance = num(p.rollingBalance);
-
     const isLast = i === lastIndex;
-    const isMax = balance === maxBalance;
-    const isMin = balance === minBalance;
-
-    const pointColor = balance < 0
-      ? "#dc2626"
-      : balance < num(state.safeLine)
-        ? "#d97706"
-        : "#2563eb";
-
-    const pointRadius = isLast || isMax || isMin ? 5 : 3.5;
+    const showValue = isLast || balance === maxBalance || balance === minBalance;
+    const pointColor = balance < 0 ? "#dc2626" : "#2563eb";
 
     dots += `
       <circle
         cx="${x}"
         cy="${y}"
-        r="10"
+        r="12"
         fill="rgba(255,255,255,0.001)"
         style="cursor:pointer"
         onmouseover='showChartTooltip(
@@ -1558,29 +1545,21 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
           "${String(p.note || "-").replaceAll(`"`, "&quot;")}",
           "${money(p.dailyNet)}",
           "${money(p.rollingBalance)}",
-          "${String(p.dailyStatus || "-").replaceAll(`"`, "&quot;")}"
+          "${num(p.rollingBalance) < 0 ? "跌破0余额" : "正常"}"
         )'
         onmousemove="moveChartTooltip(event)"
         onmouseout="hideChartTooltip()"
-      />
-      <circle
-        cx="${x}"
-        cy="${y}"
-        r="${pointRadius}"
-        fill="${pointColor}"
-        style="pointer-events:none"
-      />
-    `;
+      />`;
 
-    // 只显示关键点标签
-    if (isLast || isMax || isMin) {
-      dots += `<text x="${x}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#64748b">${money(balance)}</text>`;
+    dots += `<circle cx="${x}" cy="${y}" r="${isLast ? 5 : 4}" fill="${pointColor}" style="pointer-events:none" />`;
+
+    if (showValue) {
+      dots += `<text x="${x}" y="${y - 10}" text-anchor="middle" font-size="11" fill="${pointColor}" font-weight="700">${money(balance)}</text>`;
     }
   });
 
   svg.innerHTML = `
     ${grid}
-    <line x1="${left}" y1="${safeY}" x2="${width - right}" y2="${safeY}" stroke="#d97706" stroke-dasharray="6 5" />
     <line x1="${left}" y1="${zeroY}" x2="${width - right}" y2="${zeroY}" stroke="#dc2626" stroke-dasharray="6 5" />
     <polyline fill="none" stroke="#2563eb" stroke-width="3" points="${linePoints}" />
     ${dots}
@@ -1590,15 +1569,7 @@ const runwayDays = avgDailyOutflow > 0 ? currentAvailableBalance / avgDailyOutfl
   animatePolyline(svg);
 }
 
-
-
-
-
-
-
-
-
-    function renderRunway(d) {
+function renderRunway(d) {
   
 
 const runwayDaysEl = document.getElementById("runwayDays");
@@ -1607,7 +1578,7 @@ if (d.firstBreakRow) {
   runwayDaysEl.textContent = `${d.daysToBreak}天`;
   runwayDaysEl.classList.remove("text-mode");
 } else {
-  runwayDaysEl.textContent = "全年安全";
+  runwayDaysEl.textContent = "本月安全";
   runwayDaysEl.classList.add("text-mode");
 }
 
@@ -1625,14 +1596,14 @@ if (d.firstBreakRow) {
     runwayDaysEl.textContent = `${d.daysToBreak} 天`;
     runwayDescEl.textContent = `预计在 ${d.firstBreakRow.date || "未来某日"} 首次跌破 0 余额，建议提前安排回款或调整支出。`;
   } else {
-    runwayDaysEl.textContent = "全年安全";
-    runwayDescEl.textContent = "按当前未来现金流路径测算，未来计划内未出现跌破 0 余额的情况。";
+    runwayDaysEl.textContent = "本月安全";
+    runwayDescEl.textContent = "按当月现金流路径测算，本月内未出现跌破 0 余额的情况。";
   }
 
   // 辅助指标：历史流出速度仍保留
   avgOutEl.textContent = `最近30天平均日净流出：¥ ${money(d.avgDailyOutflow)}`;
   balanceEl.textContent = `当前可用余额：¥ ${money(d.currentAvailableBalance)}`;
-  worstEl.textContent = `未来最低滚动余额：¥ ${money(d.futureLowestBalance)}`;
+  worstEl.textContent = `当月最低滚动余额：¥ ${money(d.futureLowestBalance)}`;
 }
 
 
